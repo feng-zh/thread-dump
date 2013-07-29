@@ -130,7 +130,7 @@ class JstackThreadEntry implements ThreadCallState {
 				builder.append(" (").append(getDetailState()).append(")");
 			}
 			builder.append('\n');
-			for (JstackStackTrace stacktrace : getStacktraces()) {
+			for (ThreadStackTrace stacktrace : getStacktraces()) {
 				builder.append(stacktrace).append("\n");
 			}
 		}

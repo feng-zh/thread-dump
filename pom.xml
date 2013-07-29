@@ -18,6 +18,13 @@
 			<systemPath>${toolsjar}</systemPath>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>weblogic</groupId>
+			<artifactId>wlfullclient</artifactId>
+			<version>10.3</version>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<!-- http://stackoverflow.com/questions/3080437/jdk-tools-jar-as-maven-dependency -->
@@ -46,4 +53,20 @@
 			</properties>
 		</profile>
 	</profiles>
+	<repositories>
+		<repository>
+			<id>hp-nexus</id>
+			<name>Public</name>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>interval:15</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<url>http://repo1.corp.hp.com/nexus/content/groups/public</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
 </project>

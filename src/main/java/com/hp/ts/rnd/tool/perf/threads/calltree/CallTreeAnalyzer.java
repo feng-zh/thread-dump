@@ -31,8 +31,9 @@ public class CallTreeAnalyzer {
 	}
 
 	public void addThreadCallState(ThreadCallState callState) {
-		Object threadId = callState.getThreadIdentifier();
-		TreeNode<Object, CallCount> tree = callTree.getChild(threadId, true);
+		long threadId = callState.getThreadIdentifier();
+		TreeNode<Object, CallCount> tree = callTree.getChild(
+				threadId == 0L ? callState.getThreadName() : threadId, true);
 		CallCount callCount = tree.getValue();
 		if (callCount == null) {
 			callCount = new CallCount();

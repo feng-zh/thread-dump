@@ -105,7 +105,7 @@ class JmxThreadCallState implements ThreadCallState {
 				builder.append(" (").append(getDetailState()).append(")");
 			}
 			builder.append('\n');
-			for (JmxStackTrace stacktrace : stackTraces) {
+			for (ThreadStackTrace stacktrace : stackTraces) {
 				builder.append(stacktrace).append("\n");
 			}
 		}
