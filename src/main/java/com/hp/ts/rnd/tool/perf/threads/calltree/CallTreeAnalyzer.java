@@ -101,12 +101,16 @@ public class CallTreeAnalyzer {
 					public int compare(TreeNode<Object, CallCount> t1,
 							TreeNode<Object, CallCount> t2) {
 						if (t1.getKey() instanceof Long) {
-							return Long.compare((Long) t1.getKey(),
+							return compare((Long) t1.getKey(),
 									(Long) t2.getKey());
 						} else {
-							return -Long.compare(t1.getValue().count,
+							return -compare(t1.getValue().count,
 									t2.getValue().count);
 						}
+					}
+
+					private int compare(long l1, long l2) {
+						return (l1 < l2) ? -1 : ((l1 == l2) ? 0 : 1);
 					}
 
 				});
