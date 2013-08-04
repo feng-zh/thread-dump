@@ -26,7 +26,7 @@ class JstackOutputParser {
 
 		ThreadState(" +java\\.lang\\.Thread\\.State: ([^ ]+)(?: \\((.+)\\))?"),
 
-		StackTrace("\tat (.+)\\.([^(]+)\\((.+)\\)"),
+		StackFrame("\tat (.+)\\.([^(]+)\\((.+)\\)"),
 
 		StackLock("\t- (.*) <(0x[0-9a-f]+)> \\(a (.+)\\)"),
 
@@ -142,14 +142,14 @@ class JstackOutputParser {
 								.group(1)));
 						thread.setDetailState(matcher.group(2));
 						possibleStates.clear();
-						possibleStates.set(ThreadParseState.StackTrace
+						possibleStates.set(ThreadParseState.StackFrame
 								.ordinal());
 						possibleStates
 								.set(ThreadParseState.EndThread.ordinal());
 						continue NEXTLINE;
 					}
 					break;
-				case StackTrace:
+				case StackFrame:
 					matcher = state.getPattern().matcher(line);
 					if (matcher.matches()) {
 						String fileInfo = matcher.group(3);
@@ -168,11 +168,11 @@ class JstackOutputParser {
 								(lineNo == -1 && "Unknown Source"
 										.equals(fileInfo)) ? null : fileInfo,
 								fileInfo.equals("Native Method") ? -2 : lineNo);
-						JstackStackTrace stacktrace = new JstackStackTrace(
+						JstackStackFrame stackFrame = new JstackStackFrame(
 								traceElement);
-						thread.getStacktraces().add(stacktrace);
+						thread.getStackFrameList().add(stackFrame);
 						possibleStates.clear();
-						possibleStates.set(ThreadParseState.StackTrace
+						possibleStates.set(ThreadParseState.StackFrame
 								.ordinal());
 						possibleStates
 								.set(ThreadParseState.StackLock.ordinal());
@@ -184,8 +184,8 @@ class JstackOutputParser {
 				case StackLock:
 					matcher = state.getPattern().matcher(line);
 					if (matcher.matches()) {
-						List<JstackStackTrace> list = thread.getStacktraces();
-						JstackStackTrace stacktrace = list.get(list.size() - 1);
+						List<JstackStackFrame> list = thread.getStackFrameList();
+						JstackStackFrame stackFrame = list.get(list.size() - 1);
 						JstackLockInfo lockInfo = new JstackLockInfo();
 						lockInfo.setLockState(matcher.group(1));
 						lockInfo.setLockIdentityHashCode(Long.parseLong(matcher
@@ -194,9 +194,9 @@ class JstackOutputParser {
 						if ("locked".equals(lockInfo.getLockState())) {
 							lockInfo.setOwnLock(true);
 						}
-						stacktrace.addLockInfo(lockInfo);
+						stackFrame.addLockInfo(lockInfo);
 						possibleStates.clear();
-						possibleStates.set(ThreadParseState.StackTrace
+						possibleStates.set(ThreadParseState.StackFrame
 								.ordinal());
 						possibleStates
 								.set(ThreadParseState.StackLock.ordinal());

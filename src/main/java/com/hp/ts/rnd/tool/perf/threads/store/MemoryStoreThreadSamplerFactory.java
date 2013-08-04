@@ -1,12 +1,16 @@
 package com.hp.ts.rnd.tool.perf.threads.store;
 
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Date;
+
 import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSampler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplerFactory;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 
-public class StoredThreadSamplerFactory implements ThreadSamplerFactory {
+public class MemoryStoreThreadSamplerFactory implements ThreadSamplerFactory {
 
 	private ThreadSamplerFactory delegate;
 
@@ -14,9 +18,17 @@ public class StoredThreadSamplerFactory implements ThreadSamplerFactory {
 
 	private ThreadSampler sampler;
 
-	public StoredThreadSamplerFactory(ThreadSamplerFactory delegate) {
+	public MemoryStoreThreadSamplerFactory(ThreadSamplerFactory delegate) {
 		this.delegate = delegate;
 		this.repository = new ThreadStoreRepository();
+	}
+
+	public ThreadSamplingWriter createWriter(DataOutput output)
+			throws IOException {
+		ThreadSamplingWriter writer = new ThreadSamplingWriter(output,
+				repository);
+		writer.writeHeader(new Date());
+		return writer;
 	}
 
 	@Override
@@ -30,7 +42,9 @@ public class StoredThreadSamplerFactory implements ThreadSamplerFactory {
 						throws ThreadSamplingException {
 					ThreadSamplingState sampling = delegateSampler.sampling();
 					ThreadSamplingState storedSampling = new ThreadSamplingState(
-							sampling);
+							sampling.getStartTimeMillis(),
+							sampling.getDurationTimeNanos());
+					storedSampling.setSamplingTime(sampling.getSamplingTime());
 					ThreadCallState[] callStates = sampling.getCallStates();
 					StoredThreadCallState[] storedCallStates = new StoredThreadCallState[callStates.length];
 					for (int i = 0, n = callStates.length; i < n; i++) {

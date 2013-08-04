@@ -1,35 +1,40 @@
 package com.hp.ts.rnd.tool.perf.threads;
 
-public class StackTraceElementWrapper implements ThreadStackTrace {
+public class StackTraceElementWrapper implements ThreadStackFrame {
 
-	final private StackTraceElement stackTrace;
+	final private StackTraceElement frame;
 
-	public StackTraceElementWrapper(StackTraceElement stackTrace) {
-		this.stackTrace = stackTrace;
+	public StackTraceElementWrapper(StackTraceElement frame) {
+		this.frame = frame;
 	}
 
 	public String getFileName() {
-		return stackTrace.getFileName();
+		return frame.getFileName();
 	}
 
 	public int getLineNumber() {
-		return stackTrace.getLineNumber();
+		return frame.getLineNumber();
 	}
 
 	public String getClassName() {
-		return stackTrace.getClassName();
+		return frame.getClassName();
 	}
 
 	public String getMethodName() {
-		return stackTrace.getMethodName();
+		return frame.getMethodName();
 	}
 
-	public Object getTraceIdentifier() {
-		return stackTrace.toString();
+	public Object getStackFrameId() {
+		return frame.toString();
 	}
 
 	public String toString() {
-		return "\tat " + stackTrace.toString();
+		return frame.toString();
+	}
+
+	public void buildStackTrace(StringBuilder builder) {
+		builder.append("\tat ");
+		builder.append(toString());
 	}
 
 }

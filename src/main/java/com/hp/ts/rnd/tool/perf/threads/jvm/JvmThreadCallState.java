@@ -2,26 +2,27 @@ package com.hp.ts.rnd.tool.perf.threads.jvm;
 
 import java.lang.Thread.State;
 
+import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
 import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
-import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.Utils;
 
 class JvmThreadCallState implements ThreadCallState {
 
 	private String threadName;
 	private long threadIdentifier;
-	private ThreadStackTrace[] stackTraces;
+	private StackTraceElementWrapper[] stackFrames;
 	private State threadState;
 	private boolean daemon;
 	private int priority;
 
-	public JvmThreadCallState(Thread thread, StackTraceElement[] traces) {
+	public JvmThreadCallState(Thread thread, StackTraceElement[] stackFrames) {
 		this.threadName = thread.getName();
 		this.threadIdentifier = thread.getId();
 		this.threadState = thread.getState();
 		this.daemon = thread.isDaemon();
 		this.priority = thread.getPriority();
-		this.stackTraces = Utils.createStackTraceWrappers(traces);
+		this.stackFrames = Utils.createStackTraceWrappers(stackFrames);
 	}
 
 	public long getThreadIdentifier() {
@@ -36,8 +37,8 @@ class JvmThreadCallState implements ThreadCallState {
 		return threadState;
 	}
 
-	public ThreadStackTrace[] getStrackTraces() {
-		return stackTraces;
+	public ThreadStackFrame[] getStackFrames() {
+		return stackFrames;
 	}
 
 	public boolean isDaemon() {
@@ -59,8 +60,9 @@ class JvmThreadCallState implements ThreadCallState {
 			builder.append("   java.lang.Thread.State: ").append(
 					getThreadState());
 			builder.append('\n');
-			for (ThreadStackTrace stacktrace : stackTraces) {
-				builder.append(stacktrace).append("\n");
+			for (StackTraceElementWrapper stackFrame : stackFrames) {
+				stackFrame.buildStackTrace(builder);
+				builder.append('\n');
 			}
 		}
 		return builder.toString();

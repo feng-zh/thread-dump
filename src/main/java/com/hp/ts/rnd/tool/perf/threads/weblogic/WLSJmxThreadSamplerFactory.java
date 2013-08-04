@@ -39,7 +39,7 @@ public class WLSJmxThreadSamplerFactory implements ThreadSamplerFactory {
 	@Override
 	public ThreadSampler getSampler() throws ThreadSamplingException {
 		if (sampler == null) {
-			jmxConnector = createWLJMXConnector();
+			checkAccess();
 			MBeanServerConnection mbsc;
 			Set<ObjectName> objectNames;
 			try {
@@ -77,6 +77,12 @@ public class WLSJmxThreadSamplerFactory implements ThreadSamplerFactory {
 		} catch (IOException e) {
 			throw new ThreadSamplingException(
 					"connect to weblogic jmx url fail: " + serviceURL, e);
+		}
+	}
+
+	public void checkAccess() {
+		if (jmxConnector == null) {
+			jmxConnector = createWLJMXConnector();
 		}
 	}
 

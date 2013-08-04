@@ -19,7 +19,7 @@ class WLSThreadStackDumpParser {
 		ThreadLine(
 				"^\"(.*)\" (waiting for lock ([^@]+)@([0-9a-f]+) )?(WAITING|RUNNABLE|BLOCKED|TIMED_WAITING)(.*)$"),
 
-		StackTrace("\t(.+)\\.([^(]+)\\((.+)\\)"),
+		StackFrame("\t(.+)\\.([^(]+)\\((.+)\\)"),
 
 		EndThread;
 
@@ -83,7 +83,7 @@ class WLSThreadStackDumpParser {
 								.group(5)));
 						thread.setThreadDetail(matcher.group(6));
 						possibleStates.clear();
-						possibleStates.set(ThreadParseState.StackTrace
+						possibleStates.set(ThreadParseState.StackFrame
 								.ordinal());
 						possibleStates
 								.set(ThreadParseState.EndThread.ordinal());
@@ -92,7 +92,7 @@ class WLSThreadStackDumpParser {
 						// End of threads
 						return null;
 					}
-				case StackTrace:
+				case StackFrame:
 					matcher = state.getPattern().matcher(line);
 					if (matcher.matches()) {
 						String fileInfo = matcher.group(3);
@@ -111,11 +111,11 @@ class WLSThreadStackDumpParser {
 								(lineNo == -1 && "Unknown Source"
 										.equals(fileInfo)) ? null : fileInfo,
 								fileInfo.equals("Native Method") ? -2 : lineNo);
-						StackTraceElementWrapper stacktrace = new StackTraceElementWrapper(
+						StackTraceElementWrapper stackFrame = new StackTraceElementWrapper(
 								traceElement);
-						thread.getStacktraces().add(stacktrace);
+						thread.getStackFrameList().add(stackFrame);
 						possibleStates.clear();
-						possibleStates.set(ThreadParseState.StackTrace
+						possibleStates.set(ThreadParseState.StackFrame
 								.ordinal());
 						possibleStates
 								.set(ThreadParseState.EndThread.ordinal());

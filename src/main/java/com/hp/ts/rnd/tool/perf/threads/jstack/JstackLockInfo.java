@@ -42,9 +42,13 @@ class JstackLockInfo {
 		this.lockClassName = lockClassName;
 	}
 
+	void buildStrackString(StringBuilder builder) {
+		builder.append("\t- ");
+		builder.append(toString());
+	}
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("\t- ");
 		builder.append(getLockState());
 		builder.append(" <0x");
 		String idString = String.valueOf(Long

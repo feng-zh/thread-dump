@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
 
-class JmxStackTrace extends StackTraceElementWrapper {
+class JmxStackFrame extends StackTraceElementWrapper {
 
 	private List<JmxLockInfo> lockInfos;
 
-	public JmxStackTrace(StackTraceElement stackTrace) {
-		super(stackTrace);
+	public JmxStackFrame(StackTraceElement stackFrame) {
+		super(stackFrame);
 	}
 
 	public List<JmxLockInfo> getLockInfos() {
@@ -26,14 +26,14 @@ class JmxStackTrace extends StackTraceElementWrapper {
 		lockInfos.add(lockInfo);
 	}
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder(super.toString());
+	public void buildStackTrace(StringBuilder builder) {
+		super.buildStackTrace(builder);
 		if (lockInfos != null) {
 			for (JmxLockInfo lockInfo : lockInfos) {
 				builder.append("\n");
-				builder.append(lockInfo);
+				lockInfo.buildStrackString(builder);
 			}
 		}
-		return builder.toString();
 	}
+
 }

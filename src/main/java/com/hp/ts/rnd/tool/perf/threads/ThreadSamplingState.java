@@ -16,11 +16,9 @@ public class ThreadSamplingState {
 	public ThreadSamplingState() {
 	}
 
-	// no call states
-	public ThreadSamplingState(ThreadSamplingState initialClone) {
-		samplingTime = initialClone.samplingTime;
-		startTimeMillis = initialClone.startTimeMillis;
-		durationTimeNanos = initialClone.durationTimeNanos;
+	public ThreadSamplingState(long startTimeMillis, long durationTimeNanos) {
+		this.startTimeMillis = startTimeMillis;
+		this.durationTimeNanos = durationTimeNanos;
 	}
 
 	public long getSamplingTime() {

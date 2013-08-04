@@ -1,6 +1,6 @@
 package com.hp.ts.rnd.tool.perf.threads;
 
-public interface ThreadStackTrace {
+public interface ThreadStackFrame {
 
 	public String getFileName();
 
@@ -10,6 +10,6 @@ public interface ThreadStackTrace {
 
 	public String getMethodName();
 
-	public Object getTraceIdentifier();
+	public Object getStackFrameId();
 
 }

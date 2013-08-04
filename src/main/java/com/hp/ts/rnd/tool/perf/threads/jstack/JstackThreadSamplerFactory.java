@@ -21,7 +21,7 @@ public class JstackThreadSamplerFactory implements ThreadSamplerFactory {
 	public ThreadSampler getSampler() throws ThreadSamplingException {
 		if (sampler == null) {
 			try {
-				vm = Utils.attachJvm(pid);
+				checkAccess();
 			} catch (IOException e) {
 				throw new ThreadSamplingException(e);
 			}
@@ -40,6 +40,12 @@ public class JstackThreadSamplerFactory implements ThreadSamplerFactory {
 			}
 			vm = null;
 			sampler = null;
+		}
+	}
+
+	public void checkAccess() throws IOException {
+		if (vm == null) {
+			vm = Utils.attachJvm(pid);
 		}
 	}
 

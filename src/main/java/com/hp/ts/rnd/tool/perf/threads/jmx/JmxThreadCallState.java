@@ -6,7 +6,7 @@ import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 
 import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
-import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
 class JmxThreadCallState implements ThreadCallState {
 
@@ -14,16 +14,16 @@ class JmxThreadCallState implements ThreadCallState {
 	private long threadIdentifier;
 	private State threadState;
 	private String detailState;
-	private JmxStackTrace[] stackTraces;
+	private JmxStackFrame[] stackFrames;
 
 	public JmxThreadCallState(ThreadInfo threadInfo) {
 		this.threadName = threadInfo.getThreadName();
 		this.threadIdentifier = threadInfo.getThreadId();
 		this.threadState = threadInfo.getThreadState();
-		StackTraceElement[] traces = threadInfo.getStackTrace();
-		JmxStackTrace[] stackTraces = new JmxStackTrace[traces.length];
-		for (int i = 0, n = traces.length; i < n; i++) {
-			JmxStackTrace jmxStackTrace = new JmxStackTrace(traces[i]);
+		StackTraceElement[] stackTrace = threadInfo.getStackTrace();
+		this.stackFrames = new JmxStackFrame[stackTrace.length];
+		for (int i = 0, n = stackTrace.length; i < n; i++) {
+			JmxStackFrame jmxStackFrame = new JmxStackFrame(stackTrace[i]);
 			if (i == 0) {
 				LockInfo lockInfo = threadInfo.getLockInfo();
 				if (lockInfo != null) {
@@ -32,11 +32,11 @@ class JmxThreadCallState implements ThreadCallState {
 					jmxLockInfo.setLockIdentityHashCode(lockInfo
 							.getIdentityHashCode());
 					jmxLockInfo.setOwnLock(false);
-					jmxStackTrace.addLockInfo(jmxLockInfo);
+					jmxStackFrame.addLockInfo(jmxLockInfo);
 					this.detailState = "on object monitor";
 					boolean parking = false;
-					if ("sun.misc.Unsafe".equals(jmxStackTrace.getClassName())
-							&& "park".equals(jmxStackTrace.getMethodName())) {
+					if ("sun.misc.Unsafe".equals(jmxStackFrame.getClassName())
+							&& "park".equals(jmxStackFrame.getMethodName())) {
 						// parking
 						parking = true;
 						this.detailState = "parking";
@@ -66,12 +66,11 @@ class JmxThreadCallState implements ThreadCallState {
 							.getIdentityHashCode());
 					jmxLockInfo.setOwnLock(true);
 					jmxLockInfo.setLockState("locked");
-					jmxStackTrace.addLockInfo(jmxLockInfo);
+					jmxStackFrame.addLockInfo(jmxLockInfo);
 				}
 			}
-			stackTraces[i] = jmxStackTrace;
+			this.stackFrames[i] = jmxStackFrame;
 		}
-		this.stackTraces = stackTraces;
 	}
 
 	public long getThreadIdentifier() {
@@ -86,8 +85,8 @@ class JmxThreadCallState implements ThreadCallState {
 		return threadState;
 	}
 
-	public ThreadStackTrace[] getStrackTraces() {
-		return stackTraces;
+	public ThreadStackFrame[] getStackFrames() {
+		return stackFrames;
 	}
 
 	public String getDetailState() {
@@ -105,8 +104,9 @@ class JmxThreadCallState implements ThreadCallState {
 				builder.append(" (").append(getDetailState()).append(")");
 			}
 			builder.append('\n');
-			for (ThreadStackTrace stacktrace : stackTraces) {
-				builder.append(stacktrace).append("\n");
+			for (JmxStackFrame stackFrame : stackFrames) {
+				stackFrame.buildStackTrace(builder);
+				builder.append('\n');
 			}
 		}
 		return builder.toString();

@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
-import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
 public class CallTreeAnalyzer {
 
@@ -17,7 +17,7 @@ public class CallTreeAnalyzer {
 
 		long count;
 
-		String name;
+		Object name;
 
 	}
 
@@ -41,19 +41,16 @@ public class CallTreeAnalyzer {
 			callCount.name = callState.getThreadName();
 		}
 		callCount.count++;
-		ThreadStackTrace[] strackTraces = callState.getStrackTraces();
+		ThreadStackFrame[] stackFrames = callState.getStackFrames();
 		// from bottom to top
-		for (int i = strackTraces.length - 1; i >= 0; i--) {
-			ThreadStackTrace stacktrace = strackTraces[i];
-			tree = tree.getChild(stacktrace.getTraceIdentifier(), true);
+		for (int i = stackFrames.length - 1; i >= 0; i--) {
+			ThreadStackFrame stackFrame = stackFrames[i];
+			tree = tree.getChild(stackFrame.getStackFrameId(), true);
 			callCount = tree.getValue();
 			if (callCount == null) {
 				callCount = new CallCount();
 				tree.setValue(callCount);
-				callCount.name = new StackTraceElement(
-						stacktrace.getClassName(), stacktrace.getMethodName(),
-						stacktrace.getFileName(), stacktrace.getLineNumber())
-						.toString();
+				callCount.name = stackFrame;
 			}
 			callCount.count++;
 		}

@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
 import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
-import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
 public class WLSJmxThreadEntry implements ThreadCallState {
 
@@ -15,7 +15,7 @@ public class WLSJmxThreadEntry implements ThreadCallState {
 	private String lockClassName;
 	private int lockHashIdentifier;
 	private String threadDetail;
-	private List<StackTraceElementWrapper> stackTraces = new ArrayList<StackTraceElementWrapper>(
+	private List<StackTraceElementWrapper> stackFrames = new ArrayList<StackTraceElementWrapper>(
 			20);
 
 	@Override
@@ -34,8 +34,8 @@ public class WLSJmxThreadEntry implements ThreadCallState {
 	}
 
 	@Override
-	public ThreadStackTrace[] getStrackTraces() {
-		return stackTraces.toArray(new StackTraceElementWrapper[stackTraces
+	public ThreadStackFrame[] getStackFrames() {
+		return stackFrames.toArray(new StackTraceElementWrapper[stackFrames
 				.size()]);
 	}
 
@@ -71,12 +71,8 @@ public class WLSJmxThreadEntry implements ThreadCallState {
 		return threadDetail;
 	}
 
-	public List<StackTraceElementWrapper> getStackTraces() {
-		return stackTraces;
-	}
-
-	public List<StackTraceElementWrapper> getStacktraces() {
-		return stackTraces;
+	public List<StackTraceElementWrapper> getStackFrameList() {
+		return stackFrames;
 	}
 
 	public String toString() {
@@ -92,9 +88,8 @@ public class WLSJmxThreadEntry implements ThreadCallState {
 			builder.append(getThreadDetail());
 		}
 		builder.append('\n');
-		for (ThreadStackTrace stacktrace : getStacktraces()) {
-			builder.append(stacktrace.toString().replace("\tat", "\t")).append(
-					"\n");
+		for (StackTraceElementWrapper stackFrame : getStackFrameList()) {
+			builder.append("\t").append(stackFrame.toString()).append("\n");
 		}
 		return builder.toString();
 	}

@@ -11,6 +11,6 @@ public interface ThreadCallState {
 
 	public Thread.State getThreadState();
 
-	public ThreadStackTrace[] getStrackTraces();
+	public ThreadStackFrame[] getStackFrames();
 
 }

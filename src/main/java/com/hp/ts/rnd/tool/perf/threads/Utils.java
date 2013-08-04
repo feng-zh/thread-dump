@@ -39,10 +39,10 @@ public class Utils {
 	}
 
 	public static StackTraceElementWrapper[] createStackTraceWrappers(
-			StackTraceElement[] traces) {
-		StackTraceElementWrapper[] wrapper = new StackTraceElementWrapper[traces.length];
-		for (int i = 0, n = traces.length; i < n; i++) {
-			wrapper[i] = new StackTraceElementWrapper(traces[i]);
+			StackTraceElement[] traceElements) {
+		StackTraceElementWrapper[] wrapper = new StackTraceElementWrapper[traceElements.length];
+		for (int i = 0, n = traceElements.length; i < n; i++) {
+			wrapper[i] = new StackTraceElementWrapper(traceElements[i]);
 		}
 		return wrapper;
 	}

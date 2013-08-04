@@ -1,8 +1,8 @@
 package com.hp.ts.rnd.tool.perf.threads.store;
 
-public class TraceIdHelper {
+class FrameIdHelper {
 
-	private static interface TraceIdMask {
+	private static interface FrameIdMask {
 
 		public long decode(long value);
 
@@ -14,7 +14,7 @@ public class TraceIdHelper {
 
 	}
 
-	private static class SingleBitsMask implements TraceIdMask {
+	private static class SingleBitsMask implements FrameIdMask {
 
 		private final String name;
 
@@ -87,38 +87,38 @@ public class TraceIdHelper {
 
 	}
 
-	private static TraceIdHelper instance = new TraceIdHelper();
+	private static FrameIdHelper instance = new FrameIdHelper();
 
 	// 36 ~ 47 (12) - method name (supports 2048)
 	// 48 ~ 63 (16) - line no (supports 65535)
 	// reserve: (16) 0 - 15
-	private final TraceIdMask reserveMask = new SingleBitsMask("Reserve", 0, 16);
+	private final FrameIdMask reserveMask = new SingleBitsMask("Reserve", 0, 16);
 	// reserve: (1) 16 - 16
-	private final TraceIdMask versionMask = new SingleBitsMask("Version",
+	private final FrameIdMask versionMask = new SingleBitsMask("Version",
 			64 - reserveMask.getRightBit(), 1);
 	// file name: (3) 17 - 19 (0:default, 1: unknown, 2: native, 3~7: others)
-	private final TraceIdMask fileNameIdMask = new SingleBitsMask("FileName",
+	private final FrameIdMask fileNameIdMask = new SingleBitsMask("FileName",
 			64 - versionMask.getRightBit(), 3);
 	// class name: (16) 20 - 35
-	private final TraceIdMask classNameMask = new SingleBitsMask("ClassName",
+	private final FrameIdMask classNameMask = new SingleBitsMask("ClassName",
 			64 - fileNameIdMask.getRightBit(), 16);
 	// method name: (12) 36 - 47
-	private final TraceIdMask methodNameMask = new SingleBitsMask("MethodName",
+	private final FrameIdMask methodNameMask = new SingleBitsMask("MethodName",
 			64 - classNameMask.getRightBit(), 12);
 	// line number: (16) 48 - 63
-	private final TraceIdMask lineNoMask = new SingleBitsMask("LineNumber",
+	private final FrameIdMask lineNoMask = new SingleBitsMask("LineNumber",
 			64 - methodNameMask.getRightBit(), methodNameMask.getRightBit());
 
 	private final int RESEVED_VALUE = 0;
 
-	private TraceIdHelper() {
+	private FrameIdHelper() {
 	}
 
-	public static TraceIdHelper getInstance() {
+	public static FrameIdHelper getInstance() {
 		return instance;
 	}
 
-	public long getTraceId(int fileNameId, int classNameId, int methodNameId,
+	public long getFrameId(int fileNameId, int classNameId, int methodNameId,
 			int lineNo) {
 		long id = 0L;
 

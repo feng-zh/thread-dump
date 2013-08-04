@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
-import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
 class JstackThreadEntry implements ThreadCallState {
 
@@ -26,7 +26,7 @@ class JstackThreadEntry implements ThreadCallState {
 	// may not provide in native thread
 	private String detailState;
 
-	private List<JstackStackTrace> stacktraces = new ArrayList<JstackStackTrace>(
+	private List<JstackStackFrame> stackFrames = new ArrayList<JstackStackFrame>(
 			32);
 
 	public String getThreadName() {
@@ -93,20 +93,20 @@ class JstackThreadEntry implements ThreadCallState {
 		this.detailState = detailState;
 	}
 
-	public List<JstackStackTrace> getStacktraces() {
-		return stacktraces;
+	public List<JstackStackFrame> getStackFrameList() {
+		return stackFrames;
 	}
 
-	public void setStacktraces(List<JstackStackTrace> stacktraces) {
-		this.stacktraces = stacktraces;
+	public void setStackFrameList(List<JstackStackFrame> stackFrames) {
+		this.stackFrames = stackFrames;
 	}
 
 	public long getThreadIdentifier() {
 		return nid;
 	}
 
-	public ThreadStackTrace[] getStrackTraces() {
-		return stacktraces.toArray(new JstackStackTrace[stacktraces.size()]);
+	public ThreadStackFrame[] getStackFrames() {
+		return stackFrames.toArray(new JstackStackFrame[stackFrames.size()]);
 	}
 
 	public String toString() {
@@ -130,8 +130,9 @@ class JstackThreadEntry implements ThreadCallState {
 				builder.append(" (").append(getDetailState()).append(")");
 			}
 			builder.append('\n');
-			for (ThreadStackTrace stacktrace : getStacktraces()) {
-				builder.append(stacktrace).append("\n");
+			for (JstackStackFrame stackFrame : getStackFrameList()) {
+				stackFrame.buildStackTrace(builder);
+				builder.append('\n');
 			}
 		}
 		return builder.toString();

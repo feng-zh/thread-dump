@@ -1,11 +1,10 @@
 package com.hp.ts.rnd.tool.perf.threads.store;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
-import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
 class ThreadStoreRepository {
 
-	private static final TraceIdHelper TRACEID_HELPER = TraceIdHelper
+	private static final FrameIdHelper FRAMEID_HELPER = FrameIdHelper
 			.getInstance();
 
 	private IndexTable<HierarchyStringNode> classNameNodes = new IndexTable<HierarchyStringNode>();
@@ -103,16 +102,16 @@ class ThreadStoreRepository {
 
 	}
 
-	public String getFileNameByTraceId(long traceId) {
-		HierarchyStringNode classNode = getClassNode(traceId);
+	public String getFileNameByFrameId(long frameId) {
+		HierarchyStringNode classNode = getClassNode(frameId);
 		ClassInternal classData = (ClassInternal) classNode.getValue();
-		return classData.getFileName(TRACEID_HELPER.getFileNameId(traceId),
+		return classData.getFileName(FRAMEID_HELPER.getFileNameId(frameId),
 				classNode.getChars());
 	}
 
-	public int getLineNumberByTraceId(long traceId) {
-		int fileNameId = TRACEID_HELPER.getFileNameId(traceId);
-		int lineNo = TRACEID_HELPER.getLineNo(traceId);
+	public int getLineNumberByFrameId(long frameId) {
+		int fileNameId = FRAMEID_HELPER.getFileNameId(frameId);
+		int lineNo = FRAMEID_HELPER.getLineNo(frameId);
 		if (lineNo == 0) {
 			if (fileNameId == ClassInternal.FILENAME_NATIVE) {
 				return -2;
@@ -123,36 +122,40 @@ class ThreadStoreRepository {
 		return lineNo;
 	}
 
-	public String getClassNameByTraceId(long traceId) {
-		HierarchyStringNode classNode = getClassNode(traceId);
+	public String getClassNameByFrameId(long frameId) {
+		HierarchyStringNode classNode = getClassNode(frameId);
 		ClassInternal classData = (ClassInternal) classNode.getValue();
 		return classData.getClassName();
 	}
 
-	private HierarchyStringNode getClassNode(long traceId) {
-		int classNameId = TRACEID_HELPER.getClassNameId(traceId);
+	private HierarchyStringNode getClassNode(long frameId) {
+		int classNameId = FRAMEID_HELPER.getClassNameId(frameId);
 		HierarchyStringNode node = classNameNodes.get(classNameId);
 		if (node == null) {
 			throw new IllegalStateException(
 					"not found class node at class name id: " + classNameId
 							+ ", current node size: " + classNameNodes.size()
-							+ ", traceid: " + TRACEID_HELPER.toString(traceId));
+							+ ", frameId: " + FRAMEID_HELPER.toString(frameId));
 		}
 		return node;
 	}
 
-	public String getMethodNameByTraceId(long traceId) {
-		HierarchyStringNode classNode = getClassNode(traceId);
+	public String getMethodNameByFrameId(long frameId) {
+		HierarchyStringNode classNode = getClassNode(frameId);
 		ClassInternal classData = (ClassInternal) classNode.getValue();
-		return classData.getMethodName(TRACEID_HELPER.getMethodNameId(traceId));
+		return classData.getMethodName(FRAMEID_HELPER.getMethodNameId(frameId));
 	}
 
-	public long createTraceId(ThreadStackTrace trace) {
-		String fileName = trace.getFileName();
-		String className = trace.getClassName();
-		String methodName = trace.getMethodName();
-		int lineNo = trace.getLineNumber();
+	public long createStackFrameId(ThreadStackFrame frame) {
+		String fileName = frame.getFileName();
+		String className = frame.getClassName();
+		String methodName = frame.getMethodName();
+		int lineNo = frame.getLineNumber();
+		return createStackFrameId(className, methodName, fileName, lineNo);
+	}
 
+	long createStackFrameId(String className, String methodName,
+			String fileName, int lineNo) {
 		// Separate class name with '.'
 		int packageIndex = 0;
 		int nodeIndex = 0;
@@ -195,11 +198,12 @@ class ThreadStoreRepository {
 			int methodIndex = classInternal.locateMethod(methodName);
 			int fileNameIndex = classInternal.locateFileName(node.getChars(),
 					fileName);
-			return toStackIndex(classIndex, methodIndex, fileNameIndex, lineNo);
+			return toStackFrameIndex(classIndex, methodIndex, fileNameIndex,
+					lineNo);
 		}
 	}
 
-	private long toStackIndex(int classIndex, int methodIndex,
+	private long toStackFrameIndex(int classIndex, int methodIndex,
 			int fileNameIndex, int lineNo) {
 		// make sure line no is positive
 		if (lineNo < 0) {
@@ -208,7 +212,7 @@ class ThreadStoreRepository {
 				lineNo = 0;
 			}
 		}
-		return TRACEID_HELPER.getTraceId(fileNameIndex, classIndex,
+		return FRAMEID_HELPER.getFrameId(fileNameIndex, classIndex,
 				methodIndex, lineNo);
 	}
 
@@ -216,11 +220,11 @@ class ThreadStoreRepository {
 		return threadNameTable.putIfAbsent(threadName);
 	}
 
-	public long[] createStackTraceIds(ThreadStackTrace[] stackTraces) {
-		int n = stackTraces.length;
+	public long[] createStackFrameIds(ThreadStackFrame[] stackFrames) {
+		int n = stackFrames.length;
 		long[] ret = new long[n];
 		for (int i = 0; i < n; i++) {
-			ret[i] = createTraceId(stackTraces[i]);
+			ret[i] = createStackFrameId(stackFrames[i]);
 		}
 		return ret;
 	}
@@ -229,26 +233,19 @@ class ThreadStoreRepository {
 		return threadNameTable.get(threadNameId);
 	}
 
-	public long createThreadId(long threadIdentifier, String threadName) {
-		if (threadIdentifier == ThreadCallState.THREAD_ID_NOTSUPPOT) {
-			return createThreadNameId(threadName);
-		}
-		return threadIdentifier;
-	}
-
-	public ThreadStackTrace[] getStackTracesByTraceIds(long[] stackTraces) {
-		int n = stackTraces.length;
-		ThreadStackTrace[] ret = new ThreadStackTrace[n];
+	public ThreadStackFrame[] getStackFramesByFrameIds(long[] stackFrameIds) {
+		int n = stackFrameIds.length;
+		ThreadStackFrame[] ret = new ThreadStackFrame[n];
 		for (int i = 0; i < n; i++) {
-			ret[i] = getStackTraceByTraceId(stackTraces[i]);
+			ret[i] = getStackFrameByFrameId(stackFrameIds[i]);
 		}
 		return ret;
 	}
 
-	public ThreadStackTrace getStackTraceByTraceId(long traceId) {
+	public ThreadStackFrame getStackFrameByFrameId(long stackFrameId) {
 		// validate class node exists
-		getClassNode(traceId);
-		return new StoredThreadStackTrace(this, traceId);
+		getClassNode(stackFrameId);
+		return new StoredThreadStackFrame(this, stackFrameId);
 	}
 
 }
