@@ -13,6 +13,16 @@ public class ThreadSamplingState {
 
 	private ThreadCallState[] callStates;
 
+	public ThreadSamplingState() {
+	}
+
+	// no call states
+	public ThreadSamplingState(ThreadSamplingState initialClone) {
+		samplingTime = initialClone.samplingTime;
+		startTimeMillis = initialClone.startTimeMillis;
+		durationTimeNanos = initialClone.durationTimeNanos;
+	}
+
 	public long getSamplingTime() {
 		return samplingTime;
 	}

@@ -4,21 +4,23 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import com.hp.ts.rnd.tool.perf.threads.calltree.CallTreeAnalyzer;
-import com.hp.ts.rnd.tool.perf.threads.jmx.JmxThreadSamplerFactory;
-import com.hp.ts.rnd.tool.perf.threads.weblogic.WLSJmxThreadSamplerFactory;
+import com.hp.ts.rnd.tool.perf.threads.jstack.JstackThreadSamplerFactory;
+import com.hp.ts.rnd.tool.perf.threads.jvm.JvmThreadSamplerFactory;
+import com.hp.ts.rnd.tool.perf.threads.store.StoredThreadSamplerFactory;
 
 public class ThreadsExample implements Runnable {
 
-	private static int SAMPLING_TIME_SEC = 10;
+	private static int SAMPLING_TIME_SEC = 20;
 
-	private static long SAMPLING_INC_MS = 1000;
+	private static long SAMPLING_INC_MS = 10;
 
 	public static void main(String[] args) throws IOException {
 		// Thread samplingThread = new Thread(new ThreadsExample());
 		// samplingThread.start();
-		ThreadSamplerFactory samplerFactory = new WLSJmxThreadSamplerFactory(
-				"g1u2201.austin.hp.com:50002", "username", "password");
-		// new JstackThreadSamplerFactory(21380);
+		ThreadSamplerFactory samplerFactory =
+		// new WLSJmxThreadSamplerFactory("g1u2201.austin.hp.com:50002",
+		// "username", "password");
+		new StoredThreadSamplerFactory(new JstackThreadSamplerFactory(26198));
 		long samplingTime = System.nanoTime()
 				+ TimeUnit.SECONDS.toNanos(SAMPLING_TIME_SEC);
 		Runtime runtime = Runtime.getRuntime();
@@ -34,8 +36,8 @@ public class ThreadsExample implements Runnable {
 				}
 				ThreadSamplingState samplingState = sampling.sampling();
 				callTree.addThreadSampling(samplingState);
-				System.out.println(TimeUnit.NANOSECONDS.toMillis(samplingState
-						.getDurationTimeNanos()));
+				// System.out.println(TimeUnit.NANOSECONDS.toMillis(samplingState
+				// .getDurationTimeNanos()));
 				// System.out.print(".");
 				inSampling = System.nanoTime() - inSampling;
 				long waitSampling = TimeUnit.MILLISECONDS
@@ -49,7 +51,7 @@ public class ThreadsExample implements Runnable {
 			}
 			System.out.println();
 			System.gc();
-			callTree.print(System.out);
+			// callTree.print(System.out);
 			// samplingThread.interrupt();
 			// try {
 			// samplingThread.join();
@@ -71,7 +73,7 @@ public class ThreadsExample implements Runnable {
 
 	public void run() {
 		CallTreeAnalyzer callTree = new CallTreeAnalyzer();
-		ThreadSamplerFactory samplerFactory = new JmxThreadSamplerFactory();
+		ThreadSamplerFactory samplerFactory = new JvmThreadSamplerFactory();
 		try {
 			ThreadSampler sampling = samplerFactory.getSampler();
 			while (true) {

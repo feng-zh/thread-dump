@@ -14,6 +14,11 @@ public class StoredThreadStackTrace implements ThreadStackTrace {
 		this.traceId = repository.createTraceId(trace);
 	}
 
+	StoredThreadStackTrace(ThreadStoreRepository repository, long traceId) {
+		this.repository = repository;
+		this.traceId = traceId;
+	}
+
 	public String getFileName() {
 		return repository.getFileNameByTraceId(traceId);
 	}

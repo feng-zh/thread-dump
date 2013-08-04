@@ -164,7 +164,9 @@ class JstackOutputParser {
 							fileInfo = fileInfo.substring(0, lineNoIndex);
 						}
 						StackTraceElement traceElement = new StackTraceElement(
-								matcher.group(1), matcher.group(2), fileInfo,
+								matcher.group(1), matcher.group(2),
+								(lineNo == -1 && "Unknown Source"
+										.equals(fileInfo)) ? null : fileInfo,
 								fileInfo.equals("Native Method") ? -2 : lineNo);
 						JstackStackTrace stacktrace = new JstackStackTrace(
 								traceElement);
