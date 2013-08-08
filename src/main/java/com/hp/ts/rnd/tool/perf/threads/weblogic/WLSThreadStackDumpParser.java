@@ -45,8 +45,8 @@ class WLSThreadStackDumpParser {
 		this.nextIndex = 0;
 	}
 
-	public WLSJmxThreadEntry nextThread() throws IOException {
-		WLSJmxThreadEntry thread = null;
+	public WLSJmxThreadStackTrace nextThreadStackTrace() throws IOException {
+		WLSJmxThreadStackTrace thread = null;
 		BitSet possibleStates = new BitSet();
 		possibleStates.set(ThreadParseState.StartThread.ordinal());
 		ThreadParseState[] states = ThreadParseStates;
@@ -66,7 +66,7 @@ class WLSThreadStackDumpParser {
 								+ nextState + "\nHistory:\n" + history);
 					}
 					possibleStates.set(ThreadParseState.ThreadLine.ordinal());
-					thread = new WLSJmxThreadEntry();
+					thread = new WLSJmxThreadStackTrace();
 					break;
 				case ThreadLine:
 					matcher = state.getPattern().matcher(line);

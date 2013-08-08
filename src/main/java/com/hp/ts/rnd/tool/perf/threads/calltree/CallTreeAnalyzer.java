@@ -7,9 +7,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class CallTreeAnalyzer {
 
@@ -25,23 +25,23 @@ public class CallTreeAnalyzer {
 			null);
 
 	public void addThreadSampling(ThreadSamplingState samplingState) {
-		for (ThreadCallState callState : samplingState.getCallStates()) {
-			addThreadCallState(callState);
+		for (ThreadStackTrace stackTrace : samplingState.getStackTraces()) {
+			addThreadStackTrace(stackTrace);
 		}
 	}
 
-	public void addThreadCallState(ThreadCallState callState) {
-		long threadId = callState.getThreadIdentifier();
+	public void addThreadStackTrace(ThreadStackTrace stackTrace) {
+		long threadId = stackTrace.getThreadIdentifier();
 		TreeNode<Object, CallCount> tree = callTree.getChild(
-				threadId == 0L ? callState.getThreadName() : threadId, true);
+				threadId == 0L ? stackTrace.getThreadName() : threadId, true);
 		CallCount callCount = tree.getValue();
 		if (callCount == null) {
 			callCount = new CallCount();
 			tree.setValue(callCount);
-			callCount.name = callState.getThreadName();
+			callCount.name = stackTrace.getThreadName();
 		}
 		callCount.count++;
-		ThreadStackFrame[] stackFrames = callState.getStackFrames();
+		ThreadStackFrame[] stackFrames = stackTrace.getStackFrames();
 		// from bottom to top
 		for (int i = stackFrames.length - 1; i >= 0; i--) {
 			ThreadStackFrame stackFrame = stackFrames[i];

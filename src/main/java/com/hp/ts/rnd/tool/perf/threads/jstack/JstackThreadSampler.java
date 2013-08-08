@@ -27,13 +27,13 @@ class JstackThreadSampler implements ThreadSampler {
 			samplingState.endSampling();
 			JstackOutputParser parser = new JstackOutputParser(input);
 			samplingState.setSamplingTime(parser.getSampleTime().getTime());
-			JstackThreadEntry threadEntry;
-			List<JstackThreadEntry> threads = new ArrayList<JstackThreadEntry>();
-			while ((threadEntry = parser.nextThread()) != null) {
-				threads.add(threadEntry);
+			JstackThreadStackTrace stackTrace;
+			List<JstackThreadStackTrace> threads = new ArrayList<JstackThreadStackTrace>();
+			while ((stackTrace = parser.nextThreadStackTrace()) != null) {
+				threads.add(stackTrace);
 			}
-			samplingState.setCallStates(threads
-					.toArray(new JstackThreadEntry[threads.size()]));
+			samplingState.setStackTraces(threads
+					.toArray(new JstackThreadStackTrace[threads.size()]));
 			input.close();
 		} catch (IOException e) {
 			throw new ThreadSamplingException(e);

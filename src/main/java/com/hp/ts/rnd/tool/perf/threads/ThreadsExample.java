@@ -47,7 +47,7 @@ public class ThreadsExample implements Runnable {
 				try {
 					ThreadSamplingState samplingState = sampling.sampling();
 					callTree.addThreadSampling(samplingState);
-					traceCount += samplingState.getCallStates().length;
+					traceCount += samplingState.getStackTraces().length;
 					sampleCount++;
 					// samplingWriter.writeThreadSampling(samplingState);
 					// System.out.println(TimeUnit.NANOSECONDS.toMillis(samplingState
@@ -76,7 +76,8 @@ public class ThreadsExample implements Runnable {
 			// Thread.currentThread().interrupt();
 			// }
 			long endMem = runtime.totalMemory() - runtime.freeMemory();
-			System.out.println("Sampling: "+sampleCount+", Traces: " + traceCount);
+			System.out.println("Sampling: " + sampleCount + ", Traces: "
+					+ traceCount);
 			System.out.println("- start on memory usage: " + startMem / 1024
 					+ " KB");
 			System.out.println("- end   on memory usage: " + endMem / 1024

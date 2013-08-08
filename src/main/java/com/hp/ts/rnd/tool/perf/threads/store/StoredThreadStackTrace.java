@@ -2,10 +2,10 @@ package com.hp.ts.rnd.tool.perf.threads.store;
 
 import java.lang.Thread.State;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
-public class StoredThreadCallState implements ThreadCallState {
+class StoredThreadStackTrace implements ThreadStackTrace {
 
 	final private ThreadStoreRepository repository;
 	final private int threadNameId;
@@ -13,19 +13,19 @@ public class StoredThreadCallState implements ThreadCallState {
 	final private long[] stackFrameIds;
 	final private long threadId;
 
-	public StoredThreadCallState(ThreadStoreRepository repository,
-			ThreadCallState callState) {
+	public StoredThreadStackTrace(ThreadStoreRepository repository,
+			ThreadStackTrace stackTrace) {
 		this.repository = repository;
-		this.threadNameId = repository.createThreadNameId(callState
+		this.threadNameId = repository.createThreadNameId(stackTrace
 				.getThreadName());
-		this.threadId = (callState.getThreadIdentifier() == THREAD_ID_NOTSUPPOT) ? threadNameId
-				: callState.getThreadIdentifier();
-		this.threadState = callState.getThreadState();
-		this.stackFrameIds = repository.createStackFrameIds(callState
+		this.threadId = (stackTrace.getThreadIdentifier() == THREAD_ID_NOTSUPPOT) ? threadNameId
+				: stackTrace.getThreadIdentifier();
+		this.threadState = stackTrace.getThreadState();
+		this.stackFrameIds = repository.createStackFrameIds(stackTrace
 				.getStackFrames());
 	}
 
-	StoredThreadCallState(ThreadStoreRepository repository,
+	StoredThreadStackTrace(ThreadStoreRepository repository,
 			long threadIdentifier, int threadNameId, State threadState,
 			long[] stackFrameIds) {
 		this.repository = repository;

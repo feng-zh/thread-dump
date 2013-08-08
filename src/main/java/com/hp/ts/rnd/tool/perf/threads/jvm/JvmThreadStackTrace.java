@@ -3,11 +3,11 @@ package com.hp.ts.rnd.tool.perf.threads.jvm;
 import java.lang.Thread.State;
 
 import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 import com.hp.ts.rnd.tool.perf.threads.Utils;
 
-class JvmThreadCallState implements ThreadCallState {
+class JvmThreadStackTrace implements ThreadStackTrace {
 
 	private String threadName;
 	private long threadIdentifier;
@@ -16,7 +16,7 @@ class JvmThreadCallState implements ThreadCallState {
 	private boolean daemon;
 	private int priority;
 
-	public JvmThreadCallState(Thread thread, StackTraceElement[] stackFrames) {
+	public JvmThreadStackTrace(Thread thread, StackTraceElement[] stackFrames) {
 		this.threadName = thread.getName();
 		this.threadIdentifier = thread.getId();
 		this.threadState = thread.getState();

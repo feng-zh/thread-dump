@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hp.ts.rnd.tool.perf.threads.EndOfSamplingException;
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSampler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class DiskThreadSampler implements ThreadSampler, ThreadSamplingVisitor {
 
@@ -60,15 +60,15 @@ public class DiskThreadSampler implements ThreadSampler, ThreadSamplingVisitor {
 	}
 
 	@Override
-	public ThreadCallState visitCallState(long threadIdentifier,
+	public ThreadStackTrace visitStackTrace(long threadIdentifier,
 			int threadNameIndex, State threadState, long[] stackFrameIds) {
 		long[] frameIds = new long[stackFrameIds.length];
 		for (int i = 0; i < frameIds.length; i++) {
 			frameIds[i] = stackFrameMapTable.get(stackFrameIds[i]);
 		}
-		ThreadCallState callState = new StoredThreadCallState(repository,
+		ThreadStackTrace stackTrace = new StoredThreadStackTrace(repository,
 				threadIdentifier, threadNameMapTable.get(threadNameIndex),
 				threadState, frameIds);
-		return callState;
+		return stackTrace;
 	}
 }

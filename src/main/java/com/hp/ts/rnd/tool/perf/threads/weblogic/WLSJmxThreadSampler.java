@@ -30,13 +30,13 @@ class WLSJmxThreadSampler implements ThreadSampler {
 			samplingState.endSampling();
 			WLSThreadStackDumpParser parser = new WLSThreadStackDumpParser(
 					threadDump);
-			WLSJmxThreadEntry threadEntry;
-			List<WLSJmxThreadEntry> threads = new ArrayList<WLSJmxThreadEntry>();
-			while ((threadEntry = parser.nextThread()) != null) {
-				threads.add(threadEntry);
+			WLSJmxThreadStackTrace threadStackTrace;
+			List<WLSJmxThreadStackTrace> threads = new ArrayList<WLSJmxThreadStackTrace>();
+			while ((threadStackTrace = parser.nextThreadStackTrace()) != null) {
+				threads.add(threadStackTrace);
 			}
-			samplingState.setCallStates(threads
-					.toArray(new WLSJmxThreadEntry[threads.size()]));
+			samplingState.setStackTraces(threads
+					.toArray(new WLSJmxThreadStackTrace[threads.size()]));
 		} catch (Exception e) {
 			throw new ThreadSamplingException(e);
 		}

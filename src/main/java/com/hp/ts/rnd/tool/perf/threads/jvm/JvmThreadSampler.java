@@ -14,13 +14,14 @@ class JvmThreadSampler implements ThreadSampler {
 		samplingState.startSampling();
 		Map<Thread, StackTraceElement[]> stacks = Thread.getAllStackTraces();
 		samplingState.endSampling();
-		JvmThreadCallState[] states = new JvmThreadCallState[stacks.size()];
+		JvmThreadStackTrace[] stackTraces = new JvmThreadStackTrace[stacks
+				.size()];
 		int index = 0;
 		for (Entry<Thread, StackTraceElement[]> entry : stacks.entrySet()) {
-			states[index++] = new JvmThreadCallState(entry.getKey(),
+			stackTraces[index++] = new JvmThreadStackTrace(entry.getKey(),
 					entry.getValue());
 		}
-		samplingState.setCallStates(states);
+		samplingState.setStackTraces(stackTraces);
 		return samplingState;
 	}
 

@@ -8,9 +8,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class ThreadSamplingWriter {
 
@@ -84,17 +84,17 @@ public class ThreadSamplingWriter {
 
 	private void write(DataOutput output, ThreadSamplingState samplingState)
 			throws IOException {
-		ThreadCallState[] callStates = samplingState.getCallStates();
+		ThreadStackTrace[] stackTraces = samplingState.getStackTraces();
 		output.writeLong(samplingState.getSamplingTime());
 		output.writeLong(samplingState.getStartTimeMillis());
 		output.writeLong(samplingState.getDurationTimeNanos());
-		output.writeInt(callStates.length);
-		for (ThreadCallState state : callStates) {
+		output.writeInt(stackTraces.length);
+		for (ThreadStackTrace state : stackTraces) {
 			write(output, state);
 		}
 	}
 
-	private void write(DataOutput output, ThreadCallState state)
+	private void write(DataOutput output, ThreadStackTrace state)
 			throws IOException {
 		output.writeLong(state.getThreadIdentifier());
 		int threadNameId = writeThreadName(state.getThreadName());

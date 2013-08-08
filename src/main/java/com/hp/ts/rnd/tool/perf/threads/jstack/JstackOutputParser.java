@@ -90,8 +90,8 @@ class JstackOutputParser {
 		return false;
 	}
 
-	public JstackThreadEntry nextThread() throws IOException {
-		JstackThreadEntry thread = null;
+	public JstackThreadStackTrace nextThreadStackTrace() throws IOException {
+		JstackThreadStackTrace thread = null;
 		BitSet possibleStates = new BitSet();
 		possibleStates.set(ThreadParseState.StartThread.ordinal());
 		ThreadParseState[] states = ThreadParseStates;
@@ -111,12 +111,12 @@ class JstackOutputParser {
 								+ nextState + "\nHistory:\n" + history);
 					}
 					possibleStates.set(ThreadParseState.ThreadLine.ordinal());
-					thread = new JstackThreadEntry();
+					thread = new JstackThreadStackTrace();
 					break;
 				case ThreadLine:
 					matcher = state.getPattern().matcher(line);
 					if (matcher.matches()) {
-						thread = new JstackThreadEntry();
+						thread = new JstackThreadStackTrace();
 						thread.setThreadName(matcher.group(1));
 						thread.setDaemon(matcher.group(2) != null);
 						thread.setPriority(Integer.parseInt(matcher.group(3)));
@@ -184,7 +184,8 @@ class JstackOutputParser {
 				case StackLock:
 					matcher = state.getPattern().matcher(line);
 					if (matcher.matches()) {
-						List<JstackStackFrame> list = thread.getStackFrameList();
+						List<JstackStackFrame> list = thread
+								.getStackFrameList();
 						JstackStackFrame stackFrame = list.get(list.size() - 1);
 						JstackLockInfo lockInfo = new JstackLockInfo();
 						lockInfo.setLockState(matcher.group(1));

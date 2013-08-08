@@ -4,11 +4,11 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Date;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSampler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplerFactory;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class MemoryStoreThreadSamplerFactory implements ThreadSamplerFactory {
 
@@ -45,13 +45,13 @@ public class MemoryStoreThreadSamplerFactory implements ThreadSamplerFactory {
 							sampling.getStartTimeMillis(),
 							sampling.getDurationTimeNanos());
 					storedSampling.setSamplingTime(sampling.getSamplingTime());
-					ThreadCallState[] callStates = sampling.getCallStates();
-					StoredThreadCallState[] storedCallStates = new StoredThreadCallState[callStates.length];
-					for (int i = 0, n = callStates.length; i < n; i++) {
-						storedCallStates[i] = new StoredThreadCallState(
-								repository, callStates[i]);
+					ThreadStackTrace[] stackTraces = sampling.getStackTraces();
+					StoredThreadStackTrace[] storedStackTraces = new StoredThreadStackTrace[stackTraces.length];
+					for (int i = 0, n = stackTraces.length; i < n; i++) {
+						storedStackTraces[i] = new StoredThreadStackTrace(
+								repository, stackTraces[i]);
 					}
-					storedSampling.setCallStates(storedCallStates);
+					storedSampling.setStackTraces(storedStackTraces);
 					return storedSampling;
 				}
 			};

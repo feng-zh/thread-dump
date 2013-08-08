@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
-public class WLSJmxThreadEntry implements ThreadCallState {
+class WLSJmxThreadStackTrace implements ThreadStackTrace {
 
 	private String threadName;
 	private State threadState;

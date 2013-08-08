@@ -25,11 +25,11 @@ class JmxThreadSampler implements ThreadSampler {
 		ThreadInfo[] threadInfos = mbean.dumpAllThreads(objMonitorSupported,
 				synchSupported);
 		samplingState.endSampling();
-		JmxThreadCallState[] states = new JmxThreadCallState[threadInfos.length];
+		JmxThreadStackTrace[] stackTraces = new JmxThreadStackTrace[threadInfos.length];
 		for (int i = 0, n = threadInfos.length; i < n; i++) {
-			states[i] = new JmxThreadCallState(threadInfos[i]);
+			stackTraces[i] = new JmxThreadStackTrace(threadInfos[i]);
 		}
-		samplingState.setCallStates(states);
+		samplingState.setStackTraces(stackTraces);
 		return samplingState;
 	}
 }

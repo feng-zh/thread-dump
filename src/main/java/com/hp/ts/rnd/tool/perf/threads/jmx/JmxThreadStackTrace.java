@@ -5,10 +5,10 @@ import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
-class JmxThreadCallState implements ThreadCallState {
+class JmxThreadStackTrace implements ThreadStackTrace {
 
 	private String threadName;
 	private long threadIdentifier;
@@ -16,7 +16,7 @@ class JmxThreadCallState implements ThreadCallState {
 	private String detailState;
 	private JmxStackFrame[] stackFrames;
 
-	public JmxThreadCallState(ThreadInfo threadInfo) {
+	public JmxThreadStackTrace(ThreadInfo threadInfo) {
 		this.threadName = threadInfo.getThreadName();
 		this.threadIdentifier = threadInfo.getThreadId();
 		this.threadState = threadInfo.getThreadState();

@@ -7,8 +7,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class ThreadSamplingReader {
 
@@ -81,12 +81,12 @@ public class ThreadSamplingReader {
 				long samplingTime = blockInput.readLong();
 				long startTimeMillis = blockInput.readLong();
 				long durationTimeNanos = blockInput.readLong();
-				int callStateLen = blockInput.readInt();
+				int stackTracesLen = blockInput.readInt();
 				ThreadSamplingState samplingState = new ThreadSamplingState(
 						startTimeMillis, durationTimeNanos);
 				samplingState.setSamplingTime(samplingTime);
-				ThreadCallState[] callStates = new ThreadCallState[callStateLen];
-				for (int i = 0; i < callStateLen; i++) {
+				ThreadStackTrace[] stackTraces = new ThreadStackTrace[stackTracesLen];
+				for (int i = 0; i < stackTracesLen; i++) {
 					long threadIdentifier = blockInput.readLong();
 					int threadNameId = blockInput.readInt();
 					byte threadStateId = blockInput.readByte();
@@ -97,10 +97,10 @@ public class ThreadSamplingReader {
 					for (int j = 0; j < stackFrameLen; j++) {
 						stackFrameIds[j] = blockInput.readLong();
 					}
-					callStates[i] = visitor.visitCallState(threadIdentifier,
+					stackTraces[i] = visitor.visitStackTrace(threadIdentifier,
 							threadNameId, threadState, stackFrameIds);
 				}
-				samplingState.setCallStates(callStates);
+				samplingState.setStackTraces(stackTraces);
 				blockInput.close();
 				visitor.visitThreadSampling(samplingState);
 				break;

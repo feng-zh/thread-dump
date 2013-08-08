@@ -11,7 +11,7 @@ public class ThreadSamplingState {
 
 	private long durationTimeNanos;
 
-	private ThreadCallState[] callStates;
+	private ThreadStackTrace[] stackTraces;
 
 	public ThreadSamplingState() {
 	}
@@ -54,19 +54,19 @@ public class ThreadSamplingState {
 		this.durationTimeNanos = durationTimeNanos;
 	}
 
-	public ThreadCallState[] getCallStates() {
-		return callStates;
+	public ThreadStackTrace[] getStackTraces() {
+		return stackTraces;
 	}
 
-	public void setCallStates(ThreadCallState[] callStates) {
-		this.callStates = callStates;
+	public void setStackTraces(ThreadStackTrace[] stackTraces) {
+		this.stackTraces = stackTraces;
 	}
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(new Date(getSamplingTime()));
 		builder.append("\n\n");
-		for (ThreadCallState state : getCallStates()) {
+		for (ThreadStackTrace state : getStackTraces()) {
 			builder.append(state);
 			builder.append("\n");
 		}

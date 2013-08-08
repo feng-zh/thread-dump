@@ -3,10 +3,10 @@ package com.hp.ts.rnd.tool.perf.threads.jstack;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadCallState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
-class JstackThreadEntry implements ThreadCallState {
+class JstackThreadStackTrace implements ThreadStackTrace {
 
 	private String threadName;
 
