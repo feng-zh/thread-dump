@@ -1,8 +1,9 @@
 package com.hp.ts.rnd.tool.perf.threads.store;
 
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
-public class StoredThreadStackFrame implements ThreadStackFrame {
+class StoredThreadStackFrame implements ThreadStackFrame {
 
 	final private ThreadStoreRepository repository;
 
@@ -35,12 +36,22 @@ public class StoredThreadStackFrame implements ThreadStackFrame {
 		return repository.getMethodNameByFrameId(frameId);
 	}
 
-	public Object getStackFrameId() {
+	public Long getStackFrameId() {
 		return frameId;
+	}
+
+	public StackTraceElement toTraceElement() {
+		return repository.getStackTraceElementByFrameId(frameId);
 	}
 
 	ThreadStoreRepository getRepository() {
 		return repository;
+	}
+
+	@Override
+	public GeneralThreadStackFrame toGeneralFrame() {
+		return new GeneralThreadStackFrame(getClassName(), getMethodName(),
+				getFileName(), getLineNumber(), String.valueOf(frameId), null);
 	}
 
 }

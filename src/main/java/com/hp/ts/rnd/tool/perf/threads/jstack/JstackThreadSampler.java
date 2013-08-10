@@ -5,11 +5,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import sun.tools.attach.HotSpotVirtualMachine;
-
 import com.hp.ts.rnd.tool.perf.threads.ThreadSampler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
+import com.hp.ts.rnd.tool.perf.threads.util.Utils;
 
 class JstackThreadSampler implements ThreadSampler {
 
@@ -23,7 +22,7 @@ class JstackThreadSampler implements ThreadSampler {
 		ThreadSamplingState samplingState = new ThreadSamplingState();
 		try {
 			samplingState.startSampling();
-			InputStream input = ((HotSpotVirtualMachine) vm).remoteDataDump();
+			InputStream input = Utils.remoteDataDump(vm);
 			samplingState.endSampling();
 			JstackOutputParser parser = new JstackOutputParser(input);
 			samplingState.setSamplingTime(parser.getSampleTime().getTime());

@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hp.ts.rnd.tool.perf.threads.util.StackTraceElementWrapperWithLocks;
+import com.hp.ts.rnd.tool.perf.threads.util.ThreadStackLockInfo;
+
 class JstackOutputParser {
 
 	private BufferedReader reader;
@@ -168,7 +171,7 @@ class JstackOutputParser {
 								(lineNo == -1 && "Unknown Source"
 										.equals(fileInfo)) ? null : fileInfo,
 								fileInfo.equals("Native Method") ? -2 : lineNo);
-						JstackStackFrame stackFrame = new JstackStackFrame(
+						StackTraceElementWrapperWithLocks stackFrame = new StackTraceElementWrapperWithLocks(
 								traceElement);
 						thread.getStackFrameList().add(stackFrame);
 						possibleStates.clear();
@@ -184,17 +187,17 @@ class JstackOutputParser {
 				case StackLock:
 					matcher = state.getPattern().matcher(line);
 					if (matcher.matches()) {
-						List<JstackStackFrame> list = thread
+						List<StackTraceElementWrapperWithLocks> list = thread
 								.getStackFrameList();
-						JstackStackFrame stackFrame = list.get(list.size() - 1);
-						JstackLockInfo lockInfo = new JstackLockInfo();
-						lockInfo.setLockState(matcher.group(1));
-						lockInfo.setLockIdentityHashCode(Long.parseLong(matcher
-								.group(2).substring(2), 16));
-						lockInfo.setLockClassName(matcher.group(3));
-						if ("locked".equals(lockInfo.getLockState())) {
-							lockInfo.setOwnLock(true);
-						}
+						StackTraceElementWrapperWithLocks stackFrame = list.get(list.size() - 1);
+						String lockState = matcher.group(1);
+						long lockIdentityHashCode = Long.parseLong(matcher
+								.group(2).substring(2), 16);
+						String lockClassName = matcher.group(3);
+						boolean ownLock = "locked".equals(lockState);
+						ThreadStackLockInfo lockInfo = new ThreadStackLockInfo(
+								lockClassName, lockIdentityHashCode, lockState,
+								ownLock);
 						stackFrame.addLockInfo(lockInfo);
 						possibleStates.clear();
 						possibleStates.set(ThreadParseState.StackFrame

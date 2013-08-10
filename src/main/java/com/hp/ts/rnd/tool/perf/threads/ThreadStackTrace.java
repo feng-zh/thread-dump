@@ -13,4 +13,6 @@ public interface ThreadStackTrace {
 
 	public ThreadStackFrame[] getStackFrames();
 
+	public GeneralThreadStackTrace toGeneralTrace();
+
 }

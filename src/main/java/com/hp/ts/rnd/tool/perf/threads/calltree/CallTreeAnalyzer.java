@@ -45,7 +45,11 @@ public class CallTreeAnalyzer {
 		// from bottom to top
 		for (int i = stackFrames.length - 1; i >= 0; i--) {
 			ThreadStackFrame stackFrame = stackFrames[i];
-			tree = tree.getChild(stackFrame.getStackFrameId(), true);
+			Object stackFrameId = stackFrame.getStackFrameId();
+			if (stackFrameId == null) {
+				stackFrameId = stackFrame.toTraceElement();
+			}
+			tree = tree.getChild(stackFrameId, true);
 			callCount = tree.getValue();
 			if (callCount == null) {
 				callCount = new CallCount();

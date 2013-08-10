@@ -1,6 +1,11 @@
-package com.hp.ts.rnd.tool.perf.threads.jstack;
+package com.hp.ts.rnd.tool.perf.threads.util;
 
-class JstackLockInfo {
+import java.beans.ConstructorProperties;
+import java.io.Serializable;
+
+public class ThreadStackLockInfo implements Serializable {
+
+	private static final long serialVersionUID = 6872751729170847532L;
 
 	private String lockState;
 
@@ -10,41 +15,30 @@ class JstackLockInfo {
 
 	private String lockClassName;
 
-	public String getLockState() {
-		return lockState;
+	@ConstructorProperties({ "lockClassName", "lockIdentityHashCode",
+			"lockState", "ownLock" })
+	public ThreadStackLockInfo(String lockClassName, long lockIdentityHashCode,
+			String lockState, boolean ownLock) {
+		this.lockClassName = lockClassName;
+		this.lockIdentityHashCode = lockIdentityHashCode;
+		this.lockState = lockState;
+		this.ownLock = ownLock;
 	}
 
-	public void setLockState(String lockState) {
-		this.lockState = lockState;
+	public String getLockState() {
+		return lockState;
 	}
 
 	public boolean isOwnLock() {
 		return ownLock;
 	}
 
-	public void setOwnLock(boolean ownLock) {
-		this.ownLock = ownLock;
-	}
-
 	public long getLockIdentityHashCode() {
 		return lockIdentityHashCode;
 	}
 
-	public void setLockIdentityHashCode(long lockIdentityHashCode) {
-		this.lockIdentityHashCode = lockIdentityHashCode;
-	}
-
 	public String getLockClassName() {
 		return lockClassName;
-	}
-
-	public void setLockClassName(String lockClassName) {
-		this.lockClassName = lockClassName;
-	}
-
-	void buildStrackString(StringBuilder builder) {
-		builder.append("\t- ");
-		builder.append(toString());
 	}
 
 	public String toString() {

@@ -2,6 +2,8 @@ package com.hp.ts.rnd.tool.perf.threads.store;
 
 import java.lang.Thread.State;
 
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackTrace;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
@@ -50,6 +52,19 @@ class StoredThreadStackTrace implements ThreadStackTrace {
 
 	public ThreadStackFrame[] getStackFrames() {
 		return repository.getStackFramesByFrameIds(stackFrameIds);
+	}
+
+	@Override
+	public GeneralThreadStackTrace toGeneralTrace() {
+		ThreadStackFrame[] stackFrames = getStackFrames();
+		GeneralThreadStackFrame[] frames = new GeneralThreadStackFrame[stackFrames.length];
+		for (int i = 0; i < frames.length; i++) {
+			frames[i] = stackFrames[i].toGeneralFrame();
+		}
+		return new GeneralThreadStackTrace(getClass().getName(),
+				threadId == threadNameId ? THREAD_ID_NOTSUPPOT
+						: getThreadIdentifier(), getThreadName(),
+				getThreadState(), frames, null);
 	}
 
 }

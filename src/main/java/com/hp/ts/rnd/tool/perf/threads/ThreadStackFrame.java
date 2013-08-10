@@ -10,6 +10,11 @@ public interface ThreadStackFrame {
 
 	public String getMethodName();
 
+	// return null if not support id
 	public Object getStackFrameId();
+
+	public StackTraceElement toTraceElement();
+
+	public GeneralThreadStackFrame toGeneralFrame();
 
 }

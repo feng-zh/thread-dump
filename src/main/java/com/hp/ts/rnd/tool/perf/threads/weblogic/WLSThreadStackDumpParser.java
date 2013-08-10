@@ -5,7 +5,7 @@ import java.util.BitSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
+import com.hp.ts.rnd.tool.perf.threads.util.StackTraceElementWrapper;
 
 class WLSThreadStackDumpParser {
 

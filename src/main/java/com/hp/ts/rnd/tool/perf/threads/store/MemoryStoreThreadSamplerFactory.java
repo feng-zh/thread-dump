@@ -1,9 +1,5 @@
 package com.hp.ts.rnd.tool.perf.threads.store;
 
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.Date;
-
 import com.hp.ts.rnd.tool.perf.threads.ThreadSampler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplerFactory;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
@@ -21,14 +17,6 @@ public class MemoryStoreThreadSamplerFactory implements ThreadSamplerFactory {
 	public MemoryStoreThreadSamplerFactory(ThreadSamplerFactory delegate) {
 		this.delegate = delegate;
 		this.repository = new ThreadStoreRepository();
-	}
-
-	public ThreadSamplingWriter createWriter(DataOutput output)
-			throws IOException {
-		ThreadSamplingWriter writer = new ThreadSamplingWriter(output,
-				repository);
-		writer.writeHeader(new Date());
-		return writer;
 	}
 
 	@Override

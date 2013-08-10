@@ -1,4 +1,7 @@
-package com.hp.ts.rnd.tool.perf.threads;
+package com.hp.ts.rnd.tool.perf.threads.util;
+
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 
 public class StackTraceElementWrapper implements ThreadStackFrame {
 
@@ -25,16 +28,26 @@ public class StackTraceElementWrapper implements ThreadStackFrame {
 	}
 
 	public Object getStackFrameId() {
-		return frame.toString();
+		return null;
 	}
 
 	public String toString() {
 		return frame.toString();
 	}
 
+	public StackTraceElement toTraceElement() {
+		return frame;
+	}
+
 	public void buildStackTrace(StringBuilder builder) {
 		builder.append("\tat ");
 		builder.append(toString());
+	}
+
+	@Override
+	public GeneralThreadStackFrame toGeneralFrame() {
+		return new GeneralThreadStackFrame(getClassName(), getMethodName(),
+				getFileName(), getLineNumber(), null, null);
 	}
 
 }

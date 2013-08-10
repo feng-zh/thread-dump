@@ -9,6 +9,8 @@ class HierarchyStringNode {
 	private Object value;
 
 	private int index;
+	
+	private int hash;
 
 	public HierarchyStringNode(int parentIndex, String chars) {
 		if (chars == null) {
@@ -16,6 +18,15 @@ class HierarchyStringNode {
 		}
 		this.parentIndex = parentIndex;
 		this.chars = chars;
+		this.hash = calcuateHash();
+	}
+
+	private int calcuateHash() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + parentIndex;
+		result = prime * result + chars.hashCode();
+		return result;
 	}
 
 	public void setIndex(int index) {
@@ -40,11 +51,7 @@ class HierarchyStringNode {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + parentIndex;
-		result = prime * result + chars.hashCode();
-		return result;
+		return hash;
 	}
 
 	@Override

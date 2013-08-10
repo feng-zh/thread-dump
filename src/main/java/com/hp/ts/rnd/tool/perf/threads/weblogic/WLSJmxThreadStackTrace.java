@@ -2,11 +2,17 @@ package com.hp.ts.rnd.tool.perf.threads.weblogic;
 
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.hp.ts.rnd.tool.perf.threads.StackTraceElementWrapper;
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackTrace;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.util.StackTraceElementWrapper;
+import com.hp.ts.rnd.tool.perf.threads.util.Utils;
 
 class WLSJmxThreadStackTrace implements ThreadStackTrace {
 
@@ -17,6 +23,24 @@ class WLSJmxThreadStackTrace implements ThreadStackTrace {
 	private String threadDetail;
 	private List<StackTraceElementWrapper> stackFrames = new ArrayList<StackTraceElementWrapper>(
 			20);
+
+	public WLSJmxThreadStackTrace() {
+	}
+
+	public WLSJmxThreadStackTrace(GeneralThreadStackTrace generalTrace) {
+		if (generalTrace.getProxyType().equals(getClass().getName())) {
+			throw new ClassCastException(generalTrace.getProxyType());
+		}
+		this.threadName = generalTrace.getThreadName();
+		this.threadState = generalTrace.getThreadState();
+		Map<String, String> extendedInfo = generalTrace.getExtendedInfo();
+		this.lockClassName = extendedInfo.get("lockClassName");
+		this.lockHashIdentifier = Integer.parseInt(extendedInfo
+				.get("lockHashIdentifier"));
+		this.threadDetail = extendedInfo.get("threadDetail");
+		this.stackFrames.addAll(Arrays.asList(Utils
+				.convertStackFramesWithLocks(generalTrace.getStackFrames())));
+	}
 
 	@Override
 	public long getThreadIdentifier() {
@@ -84,7 +108,7 @@ class WLSJmxThreadStackTrace implements ThreadStackTrace {
 					.append(Integer.toHexString(getLockHashIdentifier()));
 		}
 		builder.append(" ").append(getThreadState());
-		if (getThreadDetail() != null) {
+		if (getThreadDetail() != null && getThreadDetail().length() > 0) {
 			builder.append(getThreadDetail());
 		}
 		builder.append('\n');
@@ -93,4 +117,24 @@ class WLSJmxThreadStackTrace implements ThreadStackTrace {
 		}
 		return builder.toString();
 	}
+
+	@Override
+	public GeneralThreadStackTrace toGeneralTrace() {
+		ThreadStackFrame[] stackFrames = getStackFrames();
+		GeneralThreadStackFrame[] frames = new GeneralThreadStackFrame[stackFrames.length];
+		for (int i = 0; i < frames.length; i++) {
+			frames[i] = stackFrames[i].toGeneralFrame();
+		}
+		Map<String, String> extendedInfo = new LinkedHashMap<String, String>();
+		extendedInfo.put("lockClassName", lockClassName == null ? ""
+				: lockClassName);
+		extendedInfo.put("lockHashIdentifier",
+				String.valueOf(lockHashIdentifier));
+		extendedInfo.put("threadDetail", threadDetail == null ? ""
+				: threadDetail);
+		return new GeneralThreadStackTrace(getClass().getName(),
+				getThreadIdentifier(), getThreadName(), getThreadState(),
+				frames, extendedInfo);
+	}
+
 }

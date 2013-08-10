@@ -1,6 +1,6 @@
 package com.hp.ts.rnd.tool.perf.threads.proxy;
 
-import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
+import java.io.EOFException;
 
 public interface ThreadSamplerProxyMXBean {
 
@@ -15,10 +15,16 @@ public interface ThreadSamplerProxyMXBean {
 
 	public boolean isUseExecutor();
 
+	public long getSamplingCount();
+
 	// default 100 ms
 	public void setSamplingPeriod(int period);
 
 	public int getSamplingPeriod();
+
+	public void setNotifyPeriodMultiple(int multiple);
+
+	public int getNotifyPeriodMultiple();
 
 	public String getSamplerType();
 
@@ -26,6 +32,10 @@ public interface ThreadSamplerProxyMXBean {
 
 	public void closeSampler();
 
-	public ThreadSamplingState sampling();
+	public void setCompressMode(boolean mode);
+
+	public boolean isCompressMode();
+
+	public ThreadSamplingStateProxy sampling() throws EOFException;
 
 }

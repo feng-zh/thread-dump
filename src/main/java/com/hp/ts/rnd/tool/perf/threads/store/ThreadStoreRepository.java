@@ -248,4 +248,17 @@ class ThreadStoreRepository {
 		return new StoredThreadStackFrame(this, stackFrameId);
 	}
 
+	public StackTraceElement getStackTraceElementByFrameId(long frameId) {
+		HierarchyStringNode classNode = getClassNode(frameId);
+		ClassInternal classData = (ClassInternal) classNode.getValue();
+		String className = classData.getClassName();
+		String fileName = classData.getFileName(
+				FRAMEID_HELPER.getFileNameId(frameId), classNode.getChars());
+		String methodName = classData.getMethodName(FRAMEID_HELPER
+				.getMethodNameId(frameId));
+		int lineNumber = getLineNumberByFrameId(frameId);
+		return new StackTraceElement(className, methodName, fileName,
+				lineNumber);
+	}
+
 }

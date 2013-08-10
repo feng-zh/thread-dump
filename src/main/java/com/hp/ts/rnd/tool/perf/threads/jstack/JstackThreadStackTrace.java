@@ -1,10 +1,17 @@
 package com.hp.ts.rnd.tool.perf.threads.jstack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackTrace;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.util.StackTraceElementWrapperWithLocks;
+import com.hp.ts.rnd.tool.perf.threads.util.Utils;
 
 class JstackThreadStackTrace implements ThreadStackTrace {
 
@@ -26,8 +33,28 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 	// may not provide in native thread
 	private String detailState;
 
-	private List<JstackStackFrame> stackFrames = new ArrayList<JstackStackFrame>(
+	private List<StackTraceElementWrapperWithLocks> stackFrames = new ArrayList<StackTraceElementWrapperWithLocks>(
 			32);
+
+	public JstackThreadStackTrace() {
+	}
+
+	public JstackThreadStackTrace(GeneralThreadStackTrace generalTrace) {
+		if (generalTrace.getProxyType().equals(getClass().getName())) {
+			throw new ClassCastException(generalTrace.getProxyType());
+		}
+		this.threadName = generalTrace.getThreadName();
+		this.nid = (int) generalTrace.getThreadIdentifier();
+		this.threadState = generalTrace.getThreadState();
+		Map<String, String> extendedInfo = generalTrace.getExtendedInfo();
+		this.daemon = Boolean.valueOf(extendedInfo.get("daemon"));
+		this.priority = Integer.parseInt(extendedInfo.get("priority"));
+		this.tid = Long.parseLong(extendedInfo.get("tid"));
+		this.status = extendedInfo.get("status");
+		this.detailState = extendedInfo.get("detailState");
+		this.stackFrames.addAll(Arrays.asList(Utils
+				.convertStackFramesWithLocks(generalTrace.getStackFrames())));
+	}
 
 	public String getThreadName() {
 		return threadName;
@@ -93,11 +120,12 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 		this.detailState = detailState;
 	}
 
-	public List<JstackStackFrame> getStackFrameList() {
+	public List<StackTraceElementWrapperWithLocks> getStackFrameList() {
 		return stackFrames;
 	}
 
-	public void setStackFrameList(List<JstackStackFrame> stackFrames) {
+	public void setStackFrameList(
+			List<StackTraceElementWrapperWithLocks> stackFrames) {
 		this.stackFrames = stackFrames;
 	}
 
@@ -106,7 +134,9 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 	}
 
 	public ThreadStackFrame[] getStackFrames() {
-		return stackFrames.toArray(new JstackStackFrame[stackFrames.size()]);
+		return stackFrames
+				.toArray(new StackTraceElementWrapperWithLocks[stackFrames
+						.size()]);
 	}
 
 	public String toString() {
@@ -126,15 +156,33 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 		if (getThreadState() != null) {
 			builder.append("   java.lang.Thread.State: ").append(
 					getThreadState());
-			if (getDetailState() != null) {
+			if (getDetailState() != null && getDetailState().length() > 0) {
 				builder.append(" (").append(getDetailState()).append(")");
 			}
 			builder.append('\n');
-			for (JstackStackFrame stackFrame : getStackFrameList()) {
+			for (StackTraceElementWrapperWithLocks stackFrame : getStackFrameList()) {
 				stackFrame.buildStackTrace(builder);
 				builder.append('\n');
 			}
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public GeneralThreadStackTrace toGeneralTrace() {
+		ThreadStackFrame[] stackFrames = getStackFrames();
+		GeneralThreadStackFrame[] frames = new GeneralThreadStackFrame[stackFrames.length];
+		for (int i = 0; i < frames.length; i++) {
+			frames[i] = stackFrames[i].toGeneralFrame();
+		}
+		Map<String, String> extendedInfo = new LinkedHashMap<String, String>();
+		extendedInfo.put("daemon", String.valueOf(daemon));
+		extendedInfo.put("priority", String.valueOf(priority));
+		extendedInfo.put("tid", String.valueOf(tid));
+		extendedInfo.put("status", status);
+		extendedInfo.put("detailState", detailState == null ? "" : detailState);
+		return new GeneralThreadStackTrace(getClass().getName(),
+				getThreadIdentifier(), getThreadName(), getThreadState(),
+				frames, extendedInfo);
 	}
 }

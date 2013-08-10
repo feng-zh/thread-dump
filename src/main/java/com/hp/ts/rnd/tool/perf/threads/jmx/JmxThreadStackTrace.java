@@ -4,9 +4,16 @@ import java.lang.Thread.State;
 import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
+import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackTrace;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
+import com.hp.ts.rnd.tool.perf.threads.util.StackTraceElementWrapperWithLocks;
+import com.hp.ts.rnd.tool.perf.threads.util.ThreadStackLockInfo;
+import com.hp.ts.rnd.tool.perf.threads.util.Utils;
 
 class JmxThreadStackTrace implements ThreadStackTrace {
 
@@ -14,25 +21,20 @@ class JmxThreadStackTrace implements ThreadStackTrace {
 	private long threadIdentifier;
 	private State threadState;
 	private String detailState;
-	private JmxStackFrame[] stackFrames;
+	private StackTraceElementWrapperWithLocks[] stackFrames;
 
 	public JmxThreadStackTrace(ThreadInfo threadInfo) {
 		this.threadName = threadInfo.getThreadName();
 		this.threadIdentifier = threadInfo.getThreadId();
 		this.threadState = threadInfo.getThreadState();
 		StackTraceElement[] stackTrace = threadInfo.getStackTrace();
-		this.stackFrames = new JmxStackFrame[stackTrace.length];
+		this.stackFrames = new StackTraceElementWrapperWithLocks[stackTrace.length];
 		for (int i = 0, n = stackTrace.length; i < n; i++) {
-			JmxStackFrame jmxStackFrame = new JmxStackFrame(stackTrace[i]);
+			StackTraceElementWrapperWithLocks jmxStackFrame = new StackTraceElementWrapperWithLocks(
+					stackTrace[i]);
 			if (i == 0) {
 				LockInfo lockInfo = threadInfo.getLockInfo();
 				if (lockInfo != null) {
-					JmxLockInfo jmxLockInfo = new JmxLockInfo();
-					jmxLockInfo.setLockClassName(lockInfo.getClassName());
-					jmxLockInfo.setLockIdentityHashCode(lockInfo
-							.getIdentityHashCode());
-					jmxLockInfo.setOwnLock(false);
-					jmxStackFrame.addLockInfo(jmxLockInfo);
 					this.detailState = "on object monitor";
 					boolean parking = false;
 					if ("sun.misc.Unsafe".equals(jmxStackFrame.getClassName())
@@ -41,36 +43,53 @@ class JmxThreadStackTrace implements ThreadStackTrace {
 						parking = true;
 						this.detailState = "parking";
 					}
+					String lockState;
 					switch (threadState) {
 					case BLOCKED:
-						jmxLockInfo.setLockState("blocked on");
+						lockState = "blocked on";
 						break;
 					case WAITING:
-						jmxLockInfo.setLockState("waiting on");
+						lockState = "waiting on";
 						break;
 					case TIMED_WAITING:
-						jmxLockInfo.setLockState("waiting on");
+						lockState = "waiting on";
 						break;
 					default:
+						lockState = null;
+						break;
 					}
 					if (parking) {
-						jmxLockInfo.setLockState("parking to wait for ");
+						lockState = "parking to wait for ";
 					}
+					ThreadStackLockInfo jmxLockInfo = new ThreadStackLockInfo(
+							lockInfo.getClassName(),
+							lockInfo.getIdentityHashCode(), lockState, false);
+					jmxStackFrame.addLockInfo(jmxLockInfo);
 				}
 			}
 			for (MonitorInfo mi : threadInfo.getLockedMonitors()) {
 				if (mi.getLockedStackDepth() == i) {
-					JmxLockInfo jmxLockInfo = new JmxLockInfo();
-					jmxLockInfo.setLockClassName(mi.getClassName());
-					jmxLockInfo.setLockIdentityHashCode(mi
-							.getIdentityHashCode());
-					jmxLockInfo.setOwnLock(true);
-					jmxLockInfo.setLockState("locked");
+					ThreadStackLockInfo jmxLockInfo = new ThreadStackLockInfo(
+							mi.getClassName(), mi.getIdentityHashCode(),
+							"locked", true);
 					jmxStackFrame.addLockInfo(jmxLockInfo);
 				}
 			}
 			this.stackFrames[i] = jmxStackFrame;
 		}
+	}
+
+	public JmxThreadStackTrace(GeneralThreadStackTrace generalTrace) {
+		if (generalTrace.getProxyType().equals(getClass().getName())) {
+			throw new ClassCastException(generalTrace.getProxyType());
+		}
+		this.threadName = generalTrace.getThreadName();
+		this.threadIdentifier = generalTrace.getThreadIdentifier();
+		this.threadState = generalTrace.getThreadState();
+		Map<String, String> extendedInfo = generalTrace.getExtendedInfo();
+		this.detailState = extendedInfo.get("detailState");
+		this.stackFrames = Utils.convertStackFramesWithLocks(generalTrace
+				.getStackFrames());
 	}
 
 	public long getThreadIdentifier() {
@@ -100,16 +119,30 @@ class JmxThreadStackTrace implements ThreadStackTrace {
 		if (getThreadState() != null) {
 			builder.append("   java.lang.Thread.State: ").append(
 					getThreadState());
-			if (getDetailState() != null) {
+			if (getDetailState() != null && getDetailState().length() > 0) {
 				builder.append(" (").append(getDetailState()).append(")");
 			}
 			builder.append('\n');
-			for (JmxStackFrame stackFrame : stackFrames) {
+			for (StackTraceElementWrapperWithLocks stackFrame : stackFrames) {
 				stackFrame.buildStackTrace(builder);
 				builder.append('\n');
 			}
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public GeneralThreadStackTrace toGeneralTrace() {
+		ThreadStackFrame[] stackFrames = getStackFrames();
+		GeneralThreadStackFrame[] frames = new GeneralThreadStackFrame[stackFrames.length];
+		for (int i = 0; i < frames.length; i++) {
+			frames[i] = stackFrames[i].toGeneralFrame();
+		}
+		Map<String, String> extendedInfo = new LinkedHashMap<String, String>();
+		extendedInfo.put("detailState", detailState == null ? "" : detailState);
+		return new GeneralThreadStackTrace(getClass().getName(),
+				getThreadIdentifier(), getThreadName(), getThreadState(),
+				frames, extendedInfo);
 	}
 
 }

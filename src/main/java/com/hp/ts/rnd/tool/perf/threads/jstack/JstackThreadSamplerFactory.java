@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSampler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplerFactory;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
-import com.hp.ts.rnd.tool.perf.threads.Utils;
+import com.hp.ts.rnd.tool.perf.threads.util.Utils;
 
 public class JstackThreadSamplerFactory implements ThreadSamplerFactory {
 

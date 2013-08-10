@@ -12,4 +12,12 @@ public class EndOfSamplingException extends ThreadSamplingException {
 		super(message);
 	}
 
+	public EndOfSamplingException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public EndOfSamplingException(Throwable cause) {
+		super(cause);
+	}
+
 }

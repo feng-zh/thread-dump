@@ -5,27 +5,11 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class ThreadSamplingReader {
-
-	static class BlockDataInput extends DataInputStream {
-
-		public BlockDataInput(int len, DataInput input) throws IOException {
-			super(createBlockStream(input, len));
-		}
-
-		private static InputStream createBlockStream(DataInput input, int len)
-				throws IOException {
-			byte[] bytes = new byte[len];
-			input.readFully(bytes);
-			return new ByteArrayInputStream(bytes);
-		}
-
-	}
 
 	private DataInput input;
 	private byte majorVersion;
@@ -43,6 +27,19 @@ public class ThreadSamplingReader {
 
 	boolean acceptLoop(ThreadSamplingVisitor visitor, boolean loop)
 			throws IOException {
+		return readRoot(input, visitor, loop);
+	}
+
+	private DataInput readBlock(DataInput input) throws IOException {
+		int len = input.readInt();
+		byte[] buf = new byte[len];
+		input.readFully(buf);
+		return new BlockDataInput(new DataInputStream(new ByteArrayInputStream(
+				buf)));
+	}
+
+	private boolean readRoot(DataInput input, ThreadSamplingVisitor visitor,
+			boolean loop) throws IOException {
 		do {
 			byte type;
 			try {
@@ -50,67 +47,78 @@ public class ThreadSamplingReader {
 			} catch (EOFException e) {
 				return false;
 			}
-			DataInputStream blockInput = new BlockDataInput(input.readInt(),
-					input);
+
+			DataInput blockInput = readBlock(input);
 			switch (type) {
 			case ThreadSamplingWriter.TYPE_THREAD_NAME: {
-				// thread id
-				int threadNameId = blockInput.readInt();
-				String threadName = blockInput.readUTF();
-				blockInput.close();
-				visitor.visitThreadName(threadNameId, threadName);
+				readThreadName(blockInput, visitor);
 				break;
 			}
 			case ThreadSamplingWriter.TYPE_STACK_FRAME: {
-				long stackFrameId = blockInput.readLong();
-				String className = blockInput.readUTF();
-				String methodName = blockInput.readUTF();
-				String fileName;
-				if (blockInput.readByte() == 0) {
-					fileName = null;
-				} else {
-					fileName = blockInput.readUTF();
-				}
-				int lineNumber = blockInput.readInt();
-				blockInput.close();
-				visitor.visitStackFrame(stackFrameId, className, methodName,
-						fileName, lineNumber);
+				readStackFrame(blockInput, visitor);
 				break;
 			}
 			case ThreadSamplingWriter.TYPE_SAMPLING_STATE: {
-				long samplingTime = blockInput.readLong();
-				long startTimeMillis = blockInput.readLong();
-				long durationTimeNanos = blockInput.readLong();
-				int stackTracesLen = blockInput.readInt();
-				ThreadSamplingState samplingState = new ThreadSamplingState(
-						startTimeMillis, durationTimeNanos);
-				samplingState.setSamplingTime(samplingTime);
-				ThreadStackTrace[] stackTraces = new ThreadStackTrace[stackTracesLen];
-				for (int i = 0; i < stackTracesLen; i++) {
-					long threadIdentifier = blockInput.readLong();
-					int threadNameId = blockInput.readInt();
-					byte threadStateId = blockInput.readByte();
-					Thread.State threadState = threadStateId == 0 ? null
-							: Thread.State.values()[threadStateId - 1];
-					int stackFrameLen = blockInput.readInt();
-					long[] stackFrameIds = new long[stackFrameLen];
-					for (int j = 0; j < stackFrameLen; j++) {
-						stackFrameIds[j] = blockInput.readLong();
-					}
-					stackTraces[i] = visitor.visitStackTrace(threadIdentifier,
-							threadNameId, threadState, stackFrameIds);
-				}
-				samplingState.setStackTraces(stackTraces);
-				blockInput.close();
-				visitor.visitThreadSampling(samplingState);
+				readSamplingState(blockInput, visitor);
 				break;
 			}
 			default:
-				blockInput.close();
 				throw new IOException("unknown type: " + type);
 			}
 		} while (loop);
 		return true;
+	}
+
+	private void readSamplingState(DataInput input,
+			ThreadSamplingVisitor visitor) throws IOException {
+		long samplingTime = input.readLong();
+		long startTimeMillis = input.readLong();
+		long durationTimeNanos = input.readLong();
+		int stackTracesLen = input.readInt();
+		ThreadSamplingState samplingState = new ThreadSamplingState(
+				startTimeMillis, durationTimeNanos);
+		samplingState.setSamplingTime(samplingTime);
+		ThreadStackTrace[] stackTraces = new ThreadStackTrace[stackTracesLen];
+		for (int i = 0; i < stackTracesLen; i++) {
+			long threadIdentifier = input.readLong();
+			int threadNameId = input.readInt();
+			byte threadStateId = input.readByte();
+			Thread.State threadState = threadStateId == 0 ? null : Thread.State
+					.values()[threadStateId - 1];
+			int stackFrameLen = input.readInt();
+			long[] stackFrameIds = new long[stackFrameLen];
+			for (int j = 0; j < stackFrameLen; j++) {
+				stackFrameIds[j] = input.readLong();
+			}
+			stackTraces[i] = visitor.visitStackTrace(threadIdentifier,
+					threadNameId, threadState, stackFrameIds);
+		}
+		samplingState.setStackTraces(stackTraces);
+		visitor.visitThreadSampling(samplingState);
+	}
+
+	private void readStackFrame(DataInput input, ThreadSamplingVisitor visitor)
+			throws IOException {
+		long stackFrameId = input.readLong();
+		String className = input.readUTF();
+		String methodName = input.readUTF();
+		String fileName;
+		if (input.readByte() == 0) {
+			fileName = null;
+		} else {
+			fileName = input.readUTF();
+		}
+		int lineNumber = input.readInt();
+		visitor.visitStackFrame(stackFrameId, className, methodName, fileName,
+				lineNumber);
+	}
+
+	private void readThreadName(DataInput input, ThreadSamplingVisitor visitor)
+			throws IOException {
+		// thread id
+		int threadNameId = input.readInt();
+		String threadName = input.readUTF();
+		visitor.visitThreadName(threadNameId, threadName);
 	}
 
 	private void readHeader() throws IOException {

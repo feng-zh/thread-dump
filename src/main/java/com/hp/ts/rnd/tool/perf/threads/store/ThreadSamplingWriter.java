@@ -1,18 +1,20 @@
 package com.hp.ts.rnd.tool.perf.threads.store;
 
-import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.hp.ts.rnd.tool.perf.threads.EndOfSamplingException;
+import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
+import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingHandler;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackFrame;
 import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
-public class ThreadSamplingWriter {
+public class ThreadSamplingWriter implements ThreadSamplingHandler {
 
 	static final String HEADER = "PERF THREAD SAMPLING";
 
@@ -59,27 +61,20 @@ public class ThreadSamplingWriter {
 		}
 		threadNameIndex = threadNameIds.add(threadName);
 
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		DataOutputStream dataBuffer = new DataOutputStream(buffer);
+		BlockDataOutput dataBuffer = new BlockDataOutput();
 		dataBuffer.writeInt(threadNameIndex);
 		dataBuffer.writeUTF(threadName);
-		dataBuffer.close();
-
 		out.writeByte(TYPE_THREAD_NAME);
-		out.writeInt(buffer.size());
-		out.write(buffer.toByteArray());
+		dataBuffer.writeTo(out);
 		return threadNameIndex;
 	}
 
 	public void writeThreadSampling(ThreadSamplingState samplingState)
 			throws IOException {
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		DataOutputStream dataBuffer = new DataOutputStream(buffer);
+		BlockDataOutput dataBuffer = new BlockDataOutput();
 		write(dataBuffer, samplingState);
-		dataBuffer.close();
 		out.writeByte(TYPE_SAMPLING_STATE);
-		out.writeInt(buffer.size());
-		out.write(buffer.toByteArray());
+		dataBuffer.writeTo(out);
 	}
 
 	private void write(DataOutput output, ThreadSamplingState samplingState)
@@ -118,7 +113,7 @@ public class ThreadSamplingWriter {
 
 	private void write(DataOutput output, StoredThreadStackFrame stackFrame)
 			throws IOException {
-		long stackFrameId = (Long) stackFrame.getStackFrameId();
+		long stackFrameId = stackFrame.getStackFrameId();
 		writeThreadStackFrame(stackFrame, stackFrameId);
 		output.writeLong(stackFrameId);
 	}
@@ -129,8 +124,7 @@ public class ThreadSamplingWriter {
 		if (existStackFrameIds.contains(frameId)) {
 			return;
 		}
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		DataOutputStream dataBuffer = new DataOutputStream(buffer);
+		BlockDataOutput dataBuffer = new BlockDataOutput();
 		dataBuffer.writeLong(frameId);
 		dataBuffer.writeUTF(stackFrame.getClassName());
 		dataBuffer.writeUTF(stackFrame.getMethodName());
@@ -141,11 +135,33 @@ public class ThreadSamplingWriter {
 			dataBuffer.writeUTF(stackFrame.getFileName());
 		}
 		dataBuffer.writeInt(stackFrame.getLineNumber());
-		dataBuffer.close();
 		// write to out
 		out.writeByte(TYPE_STACK_FRAME);
-		out.writeInt(buffer.size());
-		out.write(buffer.toByteArray());
+		dataBuffer.writeTo(out);
 		existStackFrameIds.add(frameId);
+	}
+
+	@Override
+	public void onSampling(ThreadSamplingState state) {
+		try {
+			writeThreadSampling(state);
+		} catch (IOException e) {
+			throw new EndOfSamplingException("write sampling error", e);
+		}
+	}
+
+	@Override
+	public void onError(ThreadSamplingException exception)
+			throws ThreadSamplingException {
+	}
+
+	@Override
+	public void onEnd() {
+		if (out instanceof Closeable) {
+			try {
+				((Closeable) out).close();
+			} catch (IOException ignored) {
+			}
+		}
 	}
 }
