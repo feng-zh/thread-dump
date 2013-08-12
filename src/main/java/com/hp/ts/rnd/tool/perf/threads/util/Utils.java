@@ -9,7 +9,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.hp.ts.rnd.tool.perf.threads.GeneralThreadStackFrame;
 
@@ -162,7 +164,7 @@ public class Utils {
 		}
 		return i;
 	}
-	
+
 	public static final long readVLong(DataInput in) throws IOException {
 		byte b = in.readByte();
 		long l = b & 0x7F;
@@ -173,5 +175,25 @@ public class Utils {
 		return l;
 	}
 
+	public static Map<Integer, String> jps() throws IOException {
+		try {
+			if (VirtualMachineClass == null) {
+				VirtualMachineClass = loadVirtualMachineClass();
+			}
+			Method method = VirtualMachineClass.getMethod("list");
+			List<?> vmList = (List<?>) method.invoke(null);
+			Map<Integer, String> ret = new LinkedHashMap<Integer, String>();
+			for (Object vm : vmList) {
+				Integer pid = Integer.parseInt((String) vm.getClass()
+						.getMethod("id").invoke(vm));
+				String displayName = (String) vm.getClass()
+						.getMethod("displayName").invoke(vm);
+				ret.put(pid, displayName);
+			}
+			return ret;
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
 
 }
