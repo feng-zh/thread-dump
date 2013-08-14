@@ -125,7 +125,7 @@ class JstackOutputParser {
 						thread.setPriority(Integer.parseInt(matcher.group(3)));
 						thread.setTid(Long.parseLong(matcher.group(4)
 								.substring(2), 16));
-						thread.setNid(Integer.parseInt(matcher.group(5)
+						thread.setNid(Long.parseLong(matcher.group(5)
 								.substring(2), 16));
 						thread.setStatus(matcher.group(6));
 						possibleStates.clear();
@@ -189,7 +189,8 @@ class JstackOutputParser {
 					if (matcher.matches()) {
 						List<StackTraceElementWrapperWithLocks> list = thread
 								.getStackFrameList();
-						StackTraceElementWrapperWithLocks stackFrame = list.get(list.size() - 1);
+						StackTraceElementWrapperWithLocks stackFrame = list
+								.get(list.size() - 1);
 						String lockState = matcher.group(1);
 						long lockIdentityHashCode = Long.parseLong(matcher
 								.group(2).substring(2), 16);

@@ -23,7 +23,7 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 
 	private long tid;
 
-	private int nid;
+	private long nid;
 
 	private String status;
 
@@ -44,7 +44,7 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 			throw new ClassCastException(generalTrace.getProxyType());
 		}
 		this.threadName = generalTrace.getThreadName();
-		this.nid = (int) generalTrace.getThreadIdentifier();
+		this.nid = generalTrace.getThreadIdentifier();
 		this.threadState = generalTrace.getThreadState();
 		Map<String, String> extendedInfo = generalTrace.getExtendedInfo();
 		this.daemon = Boolean.valueOf(extendedInfo.get("daemon"));
@@ -88,11 +88,11 @@ class JstackThreadStackTrace implements ThreadStackTrace {
 		this.tid = tid;
 	}
 
-	public int getNid() {
+	public long getNid() {
 		return nid;
 	}
 
-	public void setNid(int nid) {
+	public void setNid(long nid) {
 		this.nid = nid;
 	}
 

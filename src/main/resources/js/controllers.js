@@ -1,19 +1,19 @@
-function JpsListCtrl($scope, $routeParams, $http) {
-	$http.get('jps/pid').success(function(data) {
-		$scope.list = data;
-	});
+function JpsListCtrl($scope, $routeParams, JpsList, $http) {
+	$scope.list = JpsList.query();
 	$scope.sampling = function(pid, duration, interval) {
-		alert(pid+" "+duration+" "+interval);
-		$http.post('jps/pid/'+pid+"/sampling").success(function(data) {
+		alert(pid + " " + duration + " " + interval);
+		$http.post('jps/pid/' + pid + "/sampling").success(function(data) {
 			alert(data);
 		});
 	}
 }
-function JpsDetailCtrl($scope, $routeParams, $http, $route) {
-	$http.get('jps/pid/'+$routeParams.pid).success(function(data) {
-		$scope.detail = data;
-	});
+function JpsDetailCtrl($scope, $routeParams, Jps, $route) {
+	$scope.detail = Jps.get({
+		pid : $routeParams.pid
+	})
 	$scope.refresh = function() {
-		$route.reload();
+		$scope.detail = Jps.get({
+			pid : $routeParams.pid
+		})
 	}
 }

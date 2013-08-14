@@ -15,7 +15,7 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="item in list">
-				<td>{{item.pid}}{{item.self}}</td>
+				<td>{{item.pid}}<small ng-show="item.self"> (Self)</small></td>
 				<td>{{item.mainClass}}</td>
 				<td>
 					<div class="btn-group">
@@ -23,9 +23,9 @@
 							Action
 							<span class="caret"></span>
 						</a>
-						<ul class="dropdown-menu">
+						<ul class="dropdown-menu" ng-switch on="item.self">
+							<li ng-show="item.self"><a tabindex="-1" href="#/0">Quick Dump</a></li>
 							<li><a tabindex="-1" href="#/{{item.pid}}">Dump Thread Trace</a></li>
-							<li><a tabindex="-1" href="#/0">Dump Self</a></li>
 							<li><a tabindex="-1" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a></li>
 						</ul>
 					</div>
@@ -36,11 +36,11 @@
 </div>
 <div id="sampling-setting" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
     <h3 id="myModalLabel">Sampling Setting</h3>
   </div>
   <div class="modal-body">
-    <p>One fine body…</p>
+    <p>One fine body...</p>
   </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>

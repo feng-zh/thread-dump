@@ -1,4 +1,4 @@
-angular.module('jps', []).
+angular.module('jps', ['jpsServices']).
   config(['$routeProvider', function($routeProvider) {
   $routeProvider.
       when('/', {templateUrl: 'partials/jps-pid.html',   controller: JpsListCtrl}).
