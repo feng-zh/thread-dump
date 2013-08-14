@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -194,6 +195,18 @@ public class Utils {
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
+	}
+
+	public static int getCurrentPid() {
+		String name = ManagementFactory.getRuntimeMXBean().getName();
+		int pos = name.indexOf('@');
+		if (pos >= 0) {
+			try {
+				return Integer.parseInt(name.substring(0, pos));
+			} catch (NumberFormatException ignored) {
+			}
+		}
+		return 0;
 	}
 
 }

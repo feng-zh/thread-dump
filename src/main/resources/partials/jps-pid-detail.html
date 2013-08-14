@@ -1,6 +1,19 @@
-<h1><a href="#/jps/pid">JPS</a></h1>
-<h2>JPS Detail (pid: {{detail.pid}})</h2>
+<ul class="breadcrumb">
+  <li><a href="#/">JPS</a> <span class="divider">/</span></li>
+  <li class="active">PID {{detail.pid}}</li>
+</ul>
+<div class="page-header">
+  <h1>Jstack Trace <small>PID {{detail.pid}}</small></h1>
+</div>
 <small><em>({{detail.mainClass}})</em></small>
+<div class="row">
+<div class="span10">
+<h2>Sampling on {{detail.samplingOn | date:'medium'}} <small>take {{detail.samplingDuration}} ms</small></h2>
+</div>
+<div class="span2">
+<button class="btn btn-primary" ng-click="refresh()">Sampling Again</button>
+</div>
+</div>
 <pre>
 {{detail.stackTraces}}
 </pre>
