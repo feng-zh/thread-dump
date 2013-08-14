@@ -1,8 +1,8 @@
 <ul class="breadcrumb">
-  <li class="active">JPS</li>
+	<li class="active">JPS</li>
 </ul>
 <div class="page-header">
-  <h1>JPS</h1>
+	<h1>JPS</h1>
 </div>
 <div>
 	<table class="table table-hover">
@@ -20,13 +20,15 @@
 				<td>
 					<div class="btn-group">
 						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-							Action
-							<span class="caret"></span>
+							Action <span class="caret"></span>
 						</a>
-						<ul class="dropdown-menu" ng-switch on="item.self">
-							<li ng-show="item.self"><a tabindex="-1" href="#/0">Quick Dump</a></li>
-							<li><a tabindex="-1" href="#/{{item.pid}}">Dump Thread Trace</a></li>
-							<li><a tabindex="-1" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a></li>
+						<ul class="dropdown-menu">
+							<li ng-show="item.self"><a tabindex="-1" href="#/jps/0">Quick
+									Dump</a></li>
+							<li><a tabindex="-1" ng-href="#/jps/{{item.pid}}">Dump
+									Thread Trace</a></li>
+							<li><a tabindex="-1" href="#sampling-setting" role="button" ng-click="sampling.pid = item.pid"
+								data-toggle="modal">Sampling...</a></li>
 						</ul>
 					</div>
 				</td>
@@ -34,16 +36,51 @@
 		</tbody>
 	</table>
 </div>
-<div id="sampling-setting" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-    <h3 id="myModalLabel">Sampling Setting</h3>
-  </div>
-  <div class="modal-body">
-    <p>One fine body...</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary" data-dismiss="modal" ng-click="sampling()">Start</button>
-  </div>
+<div id="sampling-setting" class="modal hide" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">X</button>
+		<h3 id="myModalLabel">Sampling Setting</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputDuration">Duration</label>
+				<div class="controls">
+					<div class="input-append">
+						<input type="number" id="inputDuration" min="1" max="60"
+							class="span2" ng-model="sampling.duration"> <select class="btn-group input-small" ng-model="sampling.durationUnit">
+							<option>second</option>
+							<option>minute</option>
+							<option>hour</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputInterval">Interval</label>
+				<div class="controls">
+					<div class="input-append">
+						<input type="number" id="Interval" min="1" class="span2" ng-model="sampling.interval">
+						 <select class="btn-group input-small" ng-model="sampling.intervalUnit">
+							<option>millisec</option>
+							<option>second</option>
+							<option>minute</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<span>{{sampling | json}}</span>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+		<button class="btn btn-primary" data-dismiss="modal"
+			ng-click="doSampling()">Start</button>
+	</div>
 </div>

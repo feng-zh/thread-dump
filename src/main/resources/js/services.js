@@ -4,4 +4,9 @@ angular.module('jpsServices', ['ngResource']).
 	}).
 	factory('Jps', function($resource){
 		return $resource('jps/pid/:pid', {pid: '@pid'});
+	}).
+	factory('Sampling', function($resource){
+		return $resource('jps/pid/:pid/sampling', {pid: '@pid'}, {
+			save: {method:'POST'}
+		});
 	});

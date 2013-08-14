@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="jps">
+<html lang="en" ng-app="threads" manifest="threads.appcache">
 <head>
 <meta charset="utf-8">
-<title>JPS</title>
+<title>Threads</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <link
@@ -34,21 +34,19 @@ body {
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="brand" href="#">Thread Sampling</a>
+				<a class="brand active" href="#/">Thread Sampling</a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
-						<li class="active"><a href="#">JPS</a></li>
+						<li><a href="#/jps">JPS</a></li>
 						<li><a href="#about">About</a></li>
 						<li><a href="#contact">Contact</a></li>
 					</ul>
 				</div>
-				<!--/.nav-collapse -->
 			</div>
 		</div>
 	</div>
 
 	<div class="container" ng-view></div>
-	<!-- /container -->
 
 </body>
 </html>

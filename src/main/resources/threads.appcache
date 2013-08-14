@@ -1,0 +1,10 @@
+CACHE MANIFEST
+# 2013-08-15 v02
+http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css
+http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js
+http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js
+http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular-resource.min.js
+http://code.jquery.com/jquery-1.10.1.min.js
+
+NETWORK:
+*
