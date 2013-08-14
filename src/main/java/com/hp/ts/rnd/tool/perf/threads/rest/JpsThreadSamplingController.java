@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.hp.ts.rnd.tool.perf.threads.ThreadSamplerFactory;
+import com.hp.ts.rnd.tool.perf.threads.ThreadSamplings;
 import com.hp.ts.rnd.tool.perf.threads.util.Utils;
+import com.hp.ts.rnd.tool.perf.web.RestParameter;
 import com.hp.ts.rnd.tool.perf.web.RestPath;
 
 class JpsThreadSamplingController {
@@ -13,6 +16,7 @@ class JpsThreadSamplingController {
 	public static class JpsEntry {
 		private int pid;
 		private String mainClass;
+		private String stackTraces;
 
 		public int getPid() {
 			return pid;
@@ -30,6 +34,14 @@ class JpsThreadSamplingController {
 			this.mainClass = mainClass;
 		}
 
+		public String getStackTraces() {
+			return stackTraces;
+		}
+
+		public void setStackTraces(String stackTraces) {
+			this.stackTraces = stackTraces;
+		}
+
 	}
 
 	@RestPath("/jps/pid")
@@ -45,13 +57,19 @@ class JpsThreadSamplingController {
 		return list;
 	}
 
-	@RestPath("/jps/pid/36440")
-	public JpsEntry jpsDetail() throws Exception {
-		int pid = 36440;
+	@RestPath("/jps/pid/{pid}")
+	public JpsEntry jpsDetail(@RestParameter("pid") int pid) throws Exception {
 		Map<Integer, String> map = Utils.jps();
 		JpsEntry jpsEntry = new JpsEntry();
 		jpsEntry.setPid(pid);
 		jpsEntry.setMainClass(map.get(pid));
+		ThreadSamplerFactory factory = ThreadSamplings
+				.createJstackThreadSamplerFactory(pid);
+		try {
+			jpsEntry.setStackTraces(factory.getSampler().sampling().toString());
+		} finally {
+			factory.close();
+		}
 		return jpsEntry;
 	}
 }
