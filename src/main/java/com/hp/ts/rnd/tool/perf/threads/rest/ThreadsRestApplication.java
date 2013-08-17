@@ -10,7 +10,9 @@ public class ThreadsRestApplication implements WebResourceApplication {
 	private Set<Object> instances = new HashSet<Object>();
 
 	public ThreadsRestApplication() {
-		instances.add(new JpsThreadSamplingController());
+		ThreadSamplerAgentController agentController = new ThreadSamplerAgentController();
+		instances.add(agentController);
+		instances.add(new JpsThreadSamplingController(agentController));
 	}
 
 	public Set<Object> getSingletons() {

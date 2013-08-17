@@ -66,6 +66,9 @@ public class ScheduledThreadSamplingService implements ThreadSamplingService {
 							scheduledFuture = null;
 						} catch (ThreadSamplingException e) {
 							handler.onError(e);
+						} catch (Exception e) {
+							handler.onError(new ThreadSamplingException(
+									"unxpected exception", e));
 						}
 					}
 				} finally {
@@ -80,7 +83,7 @@ public class ScheduledThreadSamplingService implements ThreadSamplingService {
 					}
 				}
 			}
-		}, samplingPeriodMillis, samplingPeriodMillis, TimeUnit.SECONDS);
+		}, samplingPeriodMillis, samplingPeriodMillis, TimeUnit.MILLISECONDS);
 	}
 
 	@Override

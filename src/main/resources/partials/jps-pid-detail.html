@@ -5,17 +5,73 @@
 <div class="page-header">
   <h1>Jstack Trace <small>PID {{detail.pid}}</small></h1>
 </div>
-<small><em>({{detail.mainClass}})</em></small>
 <div class="row">
-<div class="span10">
-<h2>Sampling on {{detail.samplingOn | date:'medium'}} <small>take {{detail.samplingDuration}} ms</small></h2>
+<div class="span8">
+<small><em>({{detail.mainClass}})</em></small>
+</div>
+<div class="span2" ng-init="agentId=connect()">
+<button class="btn btn-primary" ng-click="dumpThread()">Dump Thread</button>
 </div>
 <div class="span2">
-<button class="btn btn-primary" ng-click="refresh()">Sampling Again</button>
+<a class="btn" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a>
 </div>
 </div>
+<div ng-show="dump">
+<h2>Sampling on {{dump.samplingOn | date:'medium'}} <small>take {{dump.samplingDuration}} ms</small></h2>
 <pre>
-{{detail.stackTraces}}
+{{dump.stackTraces}}
 </pre>
-<div>
+</div>
+<div ng-show="sampling">
+<pre>
+{{sampling.callTree}}
+</pre>
+</div>
+<div id="sampling-setting" class="modal hide" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">X</button>
+		<h3 id="myModalLabel">Sampling Setting</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputDuration">Duration</label>
+				<div class="controls">
+					<div class="input-append">
+						<input type="number" id="inputDuration" min="1" max="60"
+							class="span2" ng-model="samplingForm.duration"> <select class="btn-group input-small" ng-model="samplingForm.durationUnit">
+							<option>second</option>
+							<option>minute</option>
+							<option>hour</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputInterval">Interval</label>
+				<div class="controls">
+					<div class="input-append">
+						<input type="number" id="Interval" min="1" class="span2" ng-model="samplingForm.interval">
+						 <select class="btn-group input-small" ng-model="samplingForm.intervalUnit">
+							<option>millisec</option>
+							<option>second</option>
+							<option>minute</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<span>{{samplingForm | json}}</span>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+		<button class="btn btn-primary" data-dismiss="modal"
+			ng-click="doSampling()">Start</button>
+	</div>
 </div>

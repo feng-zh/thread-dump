@@ -1,4 +1,4 @@
-angular.module('threads', ['jpsServices']).
+angular.module('threads', ['threadsServices']).
   config(['$routeProvider', function($routeProvider) {
   $routeProvider.
       when('/', {templateUrl: 'partials/default.html'}).

@@ -1,29 +1,41 @@
-function JpsListCtrl($scope, $routeParams, JpsList, Sampling) {
-	$scope.list = JpsList.query();
-	$scope.sampling = {
-		duration : 1,
-		durationUnit : "minute",
+function JpsListCtrl($scope, $routeParams, Jps) {
+	$scope.list = Jps.query();
+}
+var ggg;
+function JpsDetailCtrl($scope, $routeParams, Jps, JpsSampler, $resource) {
+	$scope.detail = Jps.get({
+		pid : $routeParams.pid
+	});
+	$scope.connect = function() {
+		$scope.agent = JpsSampler.save({
+			pid : $routeParams.pid
+		});
+	};
+	$scope.dumpThread = function() {
+		$scope.dump = $resource("samplers/:id/dumpStack", {
+			id : $scope.agent.agentId
+		}).get();
+	};
+	$scope.samplingForm = {
+		duration : 5,
+		durationUnit : "second",
 		interval : 50,
 		intervalUnit : "millisec"
 	};
 	$scope.doSampling = function() {
-		Sampling.save({
-			pid : $scope.sampling.pid
-		}, {
-			duration : $scope.sampling.duration,
-			durationUnit : $scope.sampling.durationUnit,
-			interval : $scope.sampling.interval,
-			intervalUnit : $scope.sampling.intervalUnit
-		})
-	}
-}
-function JpsDetailCtrl($scope, $routeParams, Jps, $route) {
-	$scope.detail = Jps.get({
-		pid : $routeParams.pid
-	})
-	$scope.refresh = function() {
-		$scope.detail = Jps.get({
-			pid : $routeParams.pid
-		})
+		$scope.dump = null;
+		$resource('samplers/:id/sampling', {id: $scope.agent.agentId}).save({
+			duration : $scope.samplingForm.duration,
+			durationUnit : $scope.samplingForm.durationUnit,
+			interval : $scope.samplingForm.interval,
+			intervalUnit : $scope.samplingForm.intervalUnit
+		});
+		var handleCallback = function (msg) {
+            $scope.$apply(function () {
+                $scope.sampling = angular.fromJson(msg.data);
+            });
+        }
+		var source = new EventSource('samplers/'+$scope.agent.agentId+'/sampling-monitor');
+        source.addEventListener('message', handleCallback, false);
 	}
 }
