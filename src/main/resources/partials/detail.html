@@ -7,7 +7,7 @@
 </div>
 <div class="row">
 <div class="span8">
-<small><em>({{jpsDetail.mainClass}})</em></small>
+<small ng-show="jpsDetail"><em>({{jpsDetail.mainClass}})</em></small>
 </div>
 <div class="span2" ng-init="agentId=connect()">
 <div class="progress" ng-hide="status % 2 == 1">

@@ -95,7 +95,9 @@ class RemoteJvmThreadSamplingController {
 			} else {
 				factory = ThreadSamplings
 						.createJmxThreadSamplerFactory(
-								new JMXServiceURL(entry.getUrl()),
+								new JMXServiceURL(
+										"service:jmx:rmi:///jndi/rmi://"
+												+ entry.getUrl()),
 								(entry.getUser() == null || entry.getUser()
 										.length() == 0) ? new String[0]
 										: new String[] { entry.getUser(),
