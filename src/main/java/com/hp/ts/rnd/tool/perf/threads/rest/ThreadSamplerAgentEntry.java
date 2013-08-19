@@ -1,7 +1,7 @@
 package com.hp.ts.rnd.tool.perf.threads.rest;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,25 +38,14 @@ class ThreadSamplerAgentEntry {
 	}
 
 	void generateAgentId() {
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
-		md.update(samplerType.getBytes());
+		List<String> list = new ArrayList<String>();
+		list.add(samplerType);
 		for (Entry<String, String> entry : samplerInfo.entrySet()) {
-			md.update(entry.getKey().getBytes());
-			md.update(entry.getValue().getBytes());
+			list.add(entry.getKey());
+			list.add(entry.getValue());
 		}
-		this.agentId = byteArrayToHexString(md.digest());
+		this.agentId = ThreadSamplerAgentController.generateSHA1Id(list
+				.toArray(new String[list.size()]));
 	}
 
-	static String byteArrayToHexString(byte[] b) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < b.length; i++) {
-			sb.append(Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1));
-		}
-		return sb.toString();
-	}
 }

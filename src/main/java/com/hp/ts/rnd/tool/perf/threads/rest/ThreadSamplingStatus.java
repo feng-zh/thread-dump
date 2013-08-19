@@ -41,6 +41,11 @@ class ThreadSamplingStatus {
 		}
 	}
 
+	public int getEstimatedProgress() {
+		int progress = (int) ((expectedFinished - System.currentTimeMillis()) * 100.0 / (expectedFinished - startedOn));
+		return 100 - Math.min(100, Math.max(0, progress));
+	}
+
 	public long getFinishedOn() {
 		return finishedOn;
 	}

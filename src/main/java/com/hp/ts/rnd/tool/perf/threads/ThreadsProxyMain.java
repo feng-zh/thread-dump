@@ -21,17 +21,13 @@ public class ThreadsProxyMain {
 		ManagementFactory.getPlatformMBeanServer().registerMBean(
 				new ThreadSamplerProxyFactory(),
 				ThreadSamplerProxyFactory.FACTORY_OBJECTNAME);
-		if (args.length > 0) {
-			String portStr = args[0];
-			try {
-				int port = Integer.parseInt(portStr);
-				setupJMXConnectorServer(port);
-			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException(
-						"need port number as argument", e);
-			}
-		} else {
-			Thread.sleep(Long.MAX_VALUE);
+		String portStr = args.length ==0 ? "11103": args[0];
+		try {
+			int port = Integer.parseInt(portStr);
+			setupJMXConnectorServer(port);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("need port number as argument",
+					e);
 		}
 	}
 

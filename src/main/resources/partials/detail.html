@@ -1,20 +1,23 @@
 <ul class="breadcrumb">
-  <li><a href="#/jps">JPS</a> <span class="divider">/</span></li>
-  <li class="active">PID {{detail.pid}}</li>
+  <li><a href="#/{{type}}">{{type}}</a> <span class="divider">/</span></li>
+  <li class="active">{{name}}</li>
 </ul>
 <div class="page-header">
-  <h1>Jstack Trace <small>PID {{detail.pid}}</small></h1>
+  <h1>{{type}} <small>{{name}}</small></h1>
 </div>
 <div class="row">
 <div class="span8">
-<small><em>({{detail.mainClass}})</em></small>
+<small><em>({{jpsDetail.mainClass}})</em></small>
 </div>
 <div class="span2" ng-init="agentId=connect()">
-<button ng-show="remoteSampling.done" class="btn btn-primary" ng-click="dumpThread()">Dump Thread</button>
+<div class="progress" ng-hide="status % 2 == 1">
+  <div class="bar" style="width: {{sampling.estimatedProgress}}%;"></div>
+</div>
+<button ng-show="status % 2 == 1" class="btn btn-primary" ng-click="dumpThread()">Dump Thread</button>
 </div>
 <div class="span2">
-<a ng-show="remoteSampling.done" class="btn" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a>
-<div class="btn-group" ng-hide="remoteSampling.done" >
+<a ng-show="status % 2 == 1" class="btn" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a>
+<div class="btn-group" ng-hide="status % 2 == 1" >
   <button class="btn btn-inverse" ng-show="pause" ng-click="pause=false">Resume</button>
   <button class="btn btn-primary" ng-hide="pause" ng-click="pause=true">Pause</button>
   <button class="btn btn-inverse dropdown-toggle" ng-show="pause" data-toggle="dropdown">
@@ -30,13 +33,13 @@
 </div>
 </div>
 <div ng-show="dump">
-<h2>Thread dump on {{dump.samplingOn | date:'short'}} <small>take {{dump.samplingDuration}} ms</small></h2>
+<h2>Thread dump on {{dump.samplingOn | date:'medium'}} <small>take {{dump.samplingDuration}} ms</small></h2>
 <pre>
 {{dump.stackTraces}}
 </pre>
 </div>
-<div ng-show="sampling.startedOn">
-<h2>Sampling on {{sampling.startedOn | date:'short'}} with {{sampling.sampleCount | number}} thread dumps <small ng-hide="remoteSampling.done">remaining in {{remoteSampling.estimatedFinishedSec}} second</small><small ng-show="sampling.done">total {{sampling.traceCount | number}} traces in {{(sampling.finishedOn - sampling.startedOn)/1000 | number}} seconds</small></h2>
+<div ng-show="status == 3 || status == 4">
+<h2>Sampling on {{sampling.startedOn | date:'short'}} with {{sampling.sampleCount | number}} thread dumps <small ng-hide="status == 3">remaining in {{remoteSampling.estimatedFinishedSec}} second</small><small ng-show="status == 3">total {{sampling.traceCount | number}} traces in {{(sampling.finishedOn - sampling.startedOn)/1000 | number}} seconds</small></h2>
 <pre>
 {{sampling.callTree}}
 </pre>
@@ -74,11 +77,6 @@
 							<option>minute</option>
 						</select>
 					</div>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="controls">
-					<span>{{samplingForm | json}}</span>
 				</div>
 			</div>
 		</form>

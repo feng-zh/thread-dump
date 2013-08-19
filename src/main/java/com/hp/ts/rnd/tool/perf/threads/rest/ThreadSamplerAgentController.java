@@ -2,6 +2,8 @@ package com.hp.ts.rnd.tool.perf.threads.rest;
 
 import java.io.FileNotFoundException;
 import java.io.ObjectOutput;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -118,6 +120,28 @@ class ThreadSamplerAgentController {
 	public ThreadSamplerAgent getAgent(String agentId)
 			throws FileNotFoundException {
 		return locate(agentId);
+	}
+
+	static String generateSHA1Id(String... args) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+		md.update(Integer.toString(args.length).getBytes());
+		for (String s : args) {
+			md.update(s.getBytes());
+		}
+		return byteArrayToHexString(md.digest());
+	}
+
+	private static String byteArrayToHexString(byte[] b) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < b.length; i++) {
+			sb.append(Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		return sb.toString();
 	}
 
 }

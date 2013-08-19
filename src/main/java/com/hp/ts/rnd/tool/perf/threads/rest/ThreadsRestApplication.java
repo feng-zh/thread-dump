@@ -13,6 +13,7 @@ public class ThreadsRestApplication implements WebResourceApplication {
 		ThreadSamplerAgentController agentController = new ThreadSamplerAgentController();
 		instances.add(agentController);
 		instances.add(new JpsThreadSamplingController(agentController));
+		instances.add(new RemoteJvmThreadSamplingController(agentController));
 	}
 
 	public Set<Object> getSingletons() {

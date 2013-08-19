@@ -1,8 +1,9 @@
-angular.module('threads', ['threadsServices']).
+angular.module('threads', ['ngResource']).
   config(['$routeProvider', function($routeProvider) {
   $routeProvider.
       when('/', {templateUrl: 'partials/default.html'}).
-      when('/jps', {templateUrl: 'partials/jps-pid.html',   controller: JpsListCtrl}).
-      when('/jps/:pid', {templateUrl: 'partials/jps-pid-detail.html', controller: JpsDetailCtrl}).
+      when('/JPS', {templateUrl: 'partials/jps.html',   controller: JpsListCtrl}).
+      when('/:remoteType', {templateUrl: 'partials/remote-jvm.html', controller: RemoteListCtrl}).
+      when('/detail/:type/:id', {templateUrl: 'partials/detail.html', controller: DetailCtrl}).
       otherwise({redirectTo: '/'});
 }]);

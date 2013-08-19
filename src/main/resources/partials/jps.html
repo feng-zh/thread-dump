@@ -18,10 +18,10 @@
 				<td>{{item.pid}}<small ng-show="item.self"> (Self)</small></td>
 				<td>{{item.mainClass}}</td>
 				<td ng-hide="item.self">
-					<a class="btn" ng-href="#/jps/{{item.pid}}">Detail</a>
+					<a class="btn" ng-href="#/detail/JPS/{{item.pid}}">Detail</a>
 				</td>
 				<td ng-show="item.self">
-					<a class="btn btn-primary" ng-href="#/jps/0">Detail</a>
+					<a class="btn btn-primary" ng-href="#/detail/JPS/0">Detail</a>
 				</td>
 			</tr>
 		</tbody>
