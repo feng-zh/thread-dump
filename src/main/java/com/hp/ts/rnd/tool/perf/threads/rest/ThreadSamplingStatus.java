@@ -1,5 +1,7 @@
 package com.hp.ts.rnd.tool.perf.threads.rest;
 
+import java.util.concurrent.TimeUnit;
+
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingException;
 
 class ThreadSamplingStatus {
@@ -28,6 +30,15 @@ class ThreadSamplingStatus {
 
 	public long getExpectedFinished() {
 		return expectedFinished;
+	}
+
+	public int getEstimatedFinishedSec() {
+		long estimated = expectedFinished - System.currentTimeMillis();
+		if (estimated <= 0) {
+			return 0;
+		} else {
+			return (int) TimeUnit.MILLISECONDS.toSeconds(estimated);
+		}
 	}
 
 	public long getFinishedOn() {

@@ -22,20 +22,31 @@ function JpsDetailCtrl($scope, $routeParams, Jps, JpsSampler, $resource) {
 		interval : 50,
 		intervalUnit : "millisec"
 	};
+	$scope.remoteSampling = {done:true};
+	$scope.sampling = $scope.remoteSampling;
 	$scope.doSampling = function() {
 		$scope.dump = null;
+		$scope.pause = false;
 		$resource('samplers/:id/sampling', {id: $scope.agent.agentId}).save({
 			duration : $scope.samplingForm.duration,
 			durationUnit : $scope.samplingForm.durationUnit,
 			interval : $scope.samplingForm.interval,
 			intervalUnit : $scope.samplingForm.intervalUnit
 		});
+		$scope.stopSampling = function() {
+			$resource('samplers/:id/sampling', {id: $scope.agent.agentId}).remove();
+			$scope.remoteSampling = $resource('samplers/:id/sampling', {id: $scope.agent.agentId}).get();
+			$scope.sampling = $scope.remoteSampling;
+		}
+		var source = new EventSource('samplers/'+$scope.agent.agentId+'/sampling-monitor');
 		var handleCallback = function (msg) {
             $scope.$apply(function () {
-                $scope.sampling = angular.fromJson(msg.data);
+                $scope.remoteSampling = angular.fromJson(msg.data);
+                if (!$scope.pause || $scope.remoteSampling.done) {
+                	$scope.sampling = $scope.remoteSampling;
+                }
             });
         }
-		var source = new EventSource('samplers/'+$scope.agent.agentId+'/sampling-monitor');
         source.addEventListener('message', handleCallback, false);
 	}
 }

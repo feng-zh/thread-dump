@@ -10,19 +10,33 @@
 <small><em>({{detail.mainClass}})</em></small>
 </div>
 <div class="span2" ng-init="agentId=connect()">
-<button class="btn btn-primary" ng-click="dumpThread()">Dump Thread</button>
+<button ng-show="remoteSampling.done" class="btn btn-primary" ng-click="dumpThread()">Dump Thread</button>
 </div>
 <div class="span2">
-<a class="btn" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a>
+<a ng-show="remoteSampling.done" class="btn" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a>
+<div class="btn-group" ng-hide="remoteSampling.done" >
+  <button class="btn btn-inverse" ng-show="pause" ng-click="pause=false">Resume</button>
+  <button class="btn btn-primary" ng-hide="pause" ng-click="pause=true">Pause</button>
+  <button class="btn btn-inverse dropdown-toggle" ng-show="pause" data-toggle="dropdown">
+    <span class="caret"></span>
+  </button>
+  <button class="btn btn-primary dropdown-toggle" ng-hide="pause" data-toggle="dropdown">
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a ng-click="stopSampling()">Stop</a></li>
+  </ul>
+</div>
 </div>
 </div>
 <div ng-show="dump">
-<h2>Sampling on {{dump.samplingOn | date:'medium'}} <small>take {{dump.samplingDuration}} ms</small></h2>
+<h2>Thread dump on {{dump.samplingOn | date:'short'}} <small>take {{dump.samplingDuration}} ms</small></h2>
 <pre>
 {{dump.stackTraces}}
 </pre>
 </div>
-<div ng-show="sampling">
+<div ng-show="sampling.startedOn">
+<h2>Sampling on {{sampling.startedOn | date:'short'}} with {{sampling.sampleCount | number}} thread dumps <small ng-hide="remoteSampling.done">remaining in {{remoteSampling.estimatedFinishedSec}} second</small><small ng-show="sampling.done">total {{sampling.traceCount | number}} traces in {{(sampling.finishedOn - sampling.startedOn)/1000 | number}} seconds</small></h2>
 <pre>
 {{sampling.callTree}}
 </pre>

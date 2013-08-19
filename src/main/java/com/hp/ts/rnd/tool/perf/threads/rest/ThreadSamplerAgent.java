@@ -17,7 +17,7 @@ import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplings;
 import com.hp.ts.rnd.tool.perf.threads.calltree.CallTreeAnalyzer;
 
-class ThreadSamplerAgent implements ThreadSamplingHandler {
+class ThreadSamplerAgent implements ThreadSamplingHandler, Runnable {
 
 	private ThreadSamplingStatus status;
 	private ThreadSamplerFactory samplerFactory;
@@ -63,7 +63,6 @@ class ThreadSamplerAgent implements ThreadSamplingHandler {
 
 	public void monitorSamplingStatus(ObjectOutput eventStream) {
 		ObjectOutput oldEventStream = this.eventStream;
-		this.eventStream = eventStream;
 		if (oldEventStream != null) {
 			try {
 				oldEventStream.close();
@@ -71,26 +70,24 @@ class ThreadSamplerAgent implements ThreadSamplingHandler {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if (monitorFuture == null && !status.done) {
-			monitorFuture = this.scheduler.scheduleWithFixedDelay(
-					new Runnable() {
-
-						@Override
-						public void run() {
-							printCallTree();
-							ObjectOutput objectOutput = ThreadSamplerAgent.this.eventStream;
-							if (objectOutput != null) {
-								try {
-									objectOutput.writeObject(status);
-									objectOutput.flush();
-								} catch (IOException e) {
-									// TODO
-									e.printStackTrace();
-									closeMonitor();
-								}
-							}
-						}
-					}, 0, 1, TimeUnit.SECONDS);
+			this.eventStream = null;
+		}
+		if (monitorFuture != null) {
+			this.eventStream = eventStream;
+		} else if (status != null) {
+			if (monitorFuture == null && !status.done) {
+				this.eventStream = eventStream;
+				monitorFuture = this.scheduler.scheduleWithFixedDelay(this, 0,
+						1, TimeUnit.SECONDS);
+			}
+			if (status.done) {
+				try {
+					eventStream.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -134,7 +131,7 @@ class ThreadSamplerAgent implements ThreadSamplingHandler {
 		status.done = true;
 		status.finishedOn = System.currentTimeMillis();
 		callTree = null;
-		closeMonitor();
+		scheduler.schedule(this, 0, TimeUnit.SECONDS);
 	}
 
 	private void printCallTree() {
@@ -144,12 +141,30 @@ class ThreadSamplerAgent implements ThreadSamplingHandler {
 			PrintStream ps = new PrintStream(baos);
 			tree.print(ps);
 			status.callTree = baos.toString();
-			System.out.println("print call tree");
 		}
 	}
 
 	public ThreadSamplerAgentEntry getAgentEntry() {
 		return agentInfo;
+	}
+
+	@Override
+	public synchronized void run() {
+		printCallTree();
+		ObjectOutput objectOutput = ThreadSamplerAgent.this.eventStream;
+		if (objectOutput != null) {
+			try {
+				objectOutput.writeObject(status);
+				objectOutput.flush();
+			} catch (IOException e) {
+				// TODO
+				e.printStackTrace();
+			} finally {
+				if (status.done) {
+					closeMonitor();
+				}
+			}
+		}
 	}
 
 }
