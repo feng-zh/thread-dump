@@ -154,8 +154,10 @@ class ThreadSamplerAgent implements ThreadSamplingHandler, Runnable {
 		ObjectOutput objectOutput = ThreadSamplerAgent.this.eventStream;
 		if (objectOutput != null) {
 			try {
-				objectOutput.writeObject(status);
-				objectOutput.flush();
+				if (status.sampleCount > 0) {
+					objectOutput.writeObject(status);
+					objectOutput.flush();
+				}
 			} catch (IOException e) {
 				// TODO
 				e.printStackTrace();
