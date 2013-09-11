@@ -16,7 +16,15 @@
 <button ng-show="status % 2 == 1" class="btn btn-primary" ng-click="dumpThread()">Dump Thread</button>
 </div>
 <div class="span2">
-<a ng-show="status % 2 == 1" class="btn" href="#sampling-setting" role="button" data-toggle="modal">Sampling...</a>
+<div class="btn-group" ng-show="status % 2 == 1" >
+  <button class="btn" href="#sampling-setting" data-toggle="modal">Sampling...</button>
+  <button class="btn dropdown-toggle" data-toggle="dropdown"  ng-hide="status == 1" >
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" ng-hide="status == 1">
+    <li><a href="#sampling-filter" data-toggle="modal">Filter</a></li>
+  </ul>
+</div>
 <div class="btn-group" ng-hide="status % 2 == 1" >
   <button class="btn btn-inverse" ng-show="pause" ng-click="pause=false">Resume</button>
   <button class="btn btn-primary" ng-hide="pause" ng-click="pause=true">Pause</button>
@@ -28,6 +36,7 @@
   </button>
   <ul class="dropdown-menu">
     <li><a ng-click="stopSampling()">Stop</a></li>
+    <li><a href="#sampling-filter" data-toggle="modal">Filter</a></li>
   </ul>
 </div>
 </div>
@@ -70,7 +79,7 @@
 				<label class="control-label" for="inputInterval">Interval</label>
 				<div class="controls">
 					<div class="input-append">
-						<input type="number" id="Interval" min="1" class="span2" ng-model="samplingForm.interval">
+						<input type="number" id="inputInterval" min="1" class="span2" ng-model="samplingForm.interval">
 						 <select class="btn-group input-small" ng-model="samplingForm.intervalUnit">
 							<option>millisec</option>
 							<option>second</option>
@@ -85,5 +94,41 @@
 		<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 		<button class="btn btn-primary" data-dismiss="modal"
 			ng-click="doSampling()">Start</button>
+	</div>
+</div>
+
+<div id="sampling-filter" class="modal hide" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">X</button>
+		<h3 id="myModalLabel">Sampling Filter</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputInclude">Include</label>
+				<div class="controls">
+						<input type="text" id="inputInclude" ng-model="samplingFilter.include">
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputExclude">Exclude</label>
+				<div class="controls">
+						<input type="text" id="inputExclude" ng-model="samplingFilter.exclude">
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="thredshold">Threshold</label>
+				<div class="controls">
+					<input type="number" id="thredshold" min="0" max="10" class="span2" ng-model="samplingFilter.threshold">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" ng-click="applyFilter(true)">Clear</button>
+		<button class="btn btn-primary" data-dismiss="modal"
+			ng-click="applyFilter(false)">Apply</button>
 	</div>
 </div>

@@ -15,11 +15,28 @@ public class CallTreeAnalyzer {
 
 	private static final String INDENT = " ";
 
-	private static class CallCount {
+	public static class CallCount {
 
 		long count;
 
 		Object name;
+
+		public long getCount() {
+			return count;
+		}
+
+		public Object getName() {
+			return name;
+		}
+
+	}
+
+	public static interface PrintFilter {
+
+		public boolean acceptNode(TreeNode<Object, CallCount> item);
+
+		// true: keep the trace (up and all down), otherwise ignore the trace
+		public Boolean acceptTrace(TreeNode<Object, CallCount> item);
 
 	}
 
@@ -73,15 +90,16 @@ public class CallTreeAnalyzer {
 				level, item);
 		int i = 0;
 		int n = children.size();
-		if (n > 0) {
-			level++;
-			for (TreeNode<Object, CallCount> child : children) {
-				String np = prefix + INDENT.substring(0, INDENT.length() - 1)
-						+ (i < n - 1 ? "|" : " ");
-				print(level, np, child, out);
-				i++;
-			}
-		} else {
+		boolean printChildren = false;
+		level++;
+		for (TreeNode<Object, CallCount> child : children) {
+			String np = prefix + INDENT.substring(0, INDENT.length() - 1)
+					+ (i < n - 1 ? "|" : " ");
+			print(level, np, child, out);
+			printChildren = true;
+			i++;
+		}
+		if (!printChildren) {
 			printTreeNode(prefix + INDENT, null, out);
 		}
 	}
@@ -124,7 +142,7 @@ public class CallTreeAnalyzer {
 	protected void printTreeNode(String prefix,
 			TreeNode<Object, CallCount> item, PrintStream out) {
 		if (prefix.length() > 0) {
-			out.print(prefix.substring(0, prefix.length() - 1));
+			out.print(prefix);
 			if (item != null) {
 				out.print("\\- ");
 			}
@@ -136,5 +154,52 @@ public class CallTreeAnalyzer {
 			}
 		}
 		out.println();
+	}
+
+	public void printFilter(PrintStream out, PrintFilter filter) {
+		TreeNode<Object, CallCount> node = callTree;
+		if (filter != null) {
+			TreeNode<Object, CallCount> newRoot = new TreeNode<Object, CallTreeAnalyzer.CallCount>(
+					null);
+			filterNode(newRoot, node, filter, false);
+			node = newRoot;
+		}
+		print(0, "", node, out);
+	}
+
+	private boolean filterNode(TreeNode<Object, CallCount> newNode,
+			TreeNode<Object, CallCount> node, PrintFilter filter,
+			boolean acceptDownstream) {
+		boolean acceptNode = acceptDownstream;
+		for (TreeNode<Object, CallCount> child : node.listChildren()) {
+			if (!filter.acceptNode(child)) {
+				// not accept this child node and subs
+				continue;
+			} else {
+				Boolean acceptTrace = filter.acceptTrace(child);
+				if (acceptTrace == null) {
+					TreeNode<Object, CallCount> newChild = newNode.getChild(
+							child.getKey(), true);
+					newChild.setValue(child.getValue());
+					boolean accept = filterNode(newChild, child, filter,
+							acceptDownstream);
+					if (accept) {
+						acceptNode = true;
+					} else {
+						newNode.removeChild(child.getKey());
+					}
+				} else if (acceptTrace.booleanValue()) {
+					TreeNode<Object, CallCount> newChild = newNode.getChild(
+							child.getKey(), true);
+					newChild.setValue(child.getValue());
+					filterNode(newChild, child, filter, true);
+					acceptNode = true;
+				} else {
+					acceptNode = false;
+					continue;
+				}
+			}
+		}
+		return acceptNode;
 	}
 }

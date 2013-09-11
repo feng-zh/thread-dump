@@ -77,6 +77,33 @@ function DetailCtrl($scope, $routeParams, $resource) {
 		durationUnit : "second",
 		interval : 50,
 		intervalUnit : "millisec"
+		
+	};
+	$scope.samplingFilter = {
+		include: "",
+		exclude : "",
+		threshold : 1
+	};
+	$scope.applyFilter = function(clear) {
+		if (clear) {
+			$resource('samplers/:id/filter', {
+				id : $scope.agent.agentId
+			}).save({
+				include : "",
+				exclude : "",
+				threshold: -1
+			});
+		} else {
+			$resource('samplers/:id/filter', {
+				id : $scope.agent.agentId
+			}).save($scope.samplingFilter);
+		}
+		if ($scope.status == 3) {
+			$scope.remoteSampling = $resource('samplers/:id/sampling', {
+				id : $scope.agent.agentId
+			}).get();
+			$scope.sampling = $scope.remoteSampling;
+		}
 	};
 	$scope.remoteSampling = {
 		done : true,
@@ -85,6 +112,7 @@ function DetailCtrl($scope, $routeParams, $resource) {
 	$scope.sampling = $scope.remoteSampling;
 	$scope.doSampling = function() {
 		$scope.status = 2; // before sampling
+		$scope.sampling.estimatedProgress = 0; // reset progress
 		$scope.dump = null;
 		$scope.pause = false;
 		$resource('samplers/:id/sampling', {
@@ -93,7 +121,8 @@ function DetailCtrl($scope, $routeParams, $resource) {
 			duration : $scope.samplingForm.duration,
 			durationUnit : $scope.samplingForm.durationUnit,
 			interval : $scope.samplingForm.interval,
-			intervalUnit : $scope.samplingForm.intervalUnit
+			intervalUnit : $scope.samplingForm.intervalUnit,
+			threshold: $scope.samplingForm.threshold
 		});
 		$scope.stopSampling = function() {
 			$scope.status = 3; // end sampling
@@ -112,13 +141,15 @@ function DetailCtrl($scope, $routeParams, $resource) {
 				if ($scope.status == 2) {
 					$scope.status = 4; // get sampling
 				}
-				$scope.remoteSampling = angular.fromJson(msg.data);
-				if (!$scope.pause) {
-					$scope.sampling = $scope.remoteSampling;
-				}
-				if ($scope.remoteSampling.done) {
-					$scope.status = 3; // end sampling
-					$scope.sampling = $scope.remoteSampling;
+				if ($scope.status == 4) {
+					$scope.remoteSampling = angular.fromJson(msg.data);
+					if (!$scope.pause) {
+						$scope.sampling = $scope.remoteSampling;
+					}
+					if ($scope.remoteSampling.done) {
+						$scope.status = 3; // end sampling
+						$scope.sampling = $scope.remoteSampling;
+					}
 				}
 			});
 		}

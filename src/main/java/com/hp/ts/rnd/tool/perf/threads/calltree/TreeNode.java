@@ -62,4 +62,10 @@ public class TreeNode<K, V> {
 		return children != null && !children.isEmpty();
 	}
 
+	public void removeChild(K key) {
+		if (children != null) {
+			children.remove(key);
+		}
+	}
+
 }

@@ -15,6 +15,9 @@ class ThreadSamplingStatus {
 	ThreadSamplingRequestForm samplingRequest;
 	ThreadSamplingException error;
 	String callTree;
+	int threshold = -1;
+	String include = "";
+	String exclude = "";
 
 	public String getUuid() {
 		return uuid;

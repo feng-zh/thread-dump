@@ -16,6 +16,9 @@ import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingService;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplingState;
 import com.hp.ts.rnd.tool.perf.threads.ThreadSamplings;
 import com.hp.ts.rnd.tool.perf.threads.calltree.CallTreeAnalyzer;
+import com.hp.ts.rnd.tool.perf.threads.calltree.CallTreeAnalyzer.CallCount;
+import com.hp.ts.rnd.tool.perf.threads.calltree.CallTreeAnalyzer.PrintFilter;
+import com.hp.ts.rnd.tool.perf.threads.calltree.TreeNode;
 
 class ThreadSamplerAgent implements ThreadSamplingHandler, Runnable {
 
@@ -130,7 +133,6 @@ class ThreadSamplerAgent implements ThreadSamplingHandler, Runnable {
 		printCallTree();
 		status.done = true;
 		status.finishedOn = System.currentTimeMillis();
-		callTree = null;
 		scheduler.schedule(this, 0, TimeUnit.SECONDS);
 	}
 
@@ -139,7 +141,42 @@ class ThreadSamplerAgent implements ThreadSamplingHandler, Runnable {
 		if (tree != null) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
-			tree.print(ps);
+			tree.printFilter(ps, new PrintFilter() {
+
+				@Override
+				public boolean acceptNode(TreeNode<Object, CallCount> item) {
+					if (item.getValue() != null) {
+						return item.getValue().getCount() > status.threshold;
+					} else {
+						return true;
+					}
+				}
+
+				@Override
+				public Boolean acceptTrace(TreeNode<Object, CallCount> item) {
+					if ((status.include == null || status.include.length() == 0)
+							&& (status.exclude == null || status.exclude
+									.length() == 0)) {
+						return true;
+					}
+					if (item.getValue() != null) {
+						if (status.include != null
+								&& status.include.trim().length() > 0
+								&& String.valueOf(item.getValue().getName())
+										.indexOf(status.include) >= 0) {
+							return true;
+						}
+						if (status.exclude != null
+								&& status.exclude.trim().length() > 0
+								&& String.valueOf(item.getValue().getName())
+										.indexOf(status.exclude) >= 0) {
+							return false;
+						}
+					}
+					return null;
+				}
+
+			});
 			status.callTree = baos.toString();
 		}
 	}
@@ -166,6 +203,14 @@ class ThreadSamplerAgent implements ThreadSamplingHandler, Runnable {
 					closeMonitor();
 				}
 			}
+		}
+	}
+
+	public void applyFilter(String include, String exclude, int threshold) {
+		if (status != null) {
+			status.include = include;
+			status.exclude = exclude;
+			status.threshold = threshold;
 		}
 	}
 

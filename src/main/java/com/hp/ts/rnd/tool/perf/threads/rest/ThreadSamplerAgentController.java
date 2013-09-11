@@ -79,6 +79,16 @@ class ThreadSamplerAgentController {
 				TimeUnit.MILLISECONDS));
 	}
 
+	@RestMethod("POST")
+	@RestPath("samplers/{id}/filter")
+	public void applyFilter(@RestPathParameter("id") String agentId,
+			@RestEntity ThreadSamplingFilter request)
+			throws FileNotFoundException {
+		ThreadSamplerAgent agent = locate(agentId);
+		agent.applyFilter(request.getInclude(), request.getExclude(),
+				request.getThreshold());
+	}
+
 	private ThreadSamplerAgent locate(String agentId)
 			throws FileNotFoundException {
 		ThreadSamplerAgent agent = agents.get(agentId);
