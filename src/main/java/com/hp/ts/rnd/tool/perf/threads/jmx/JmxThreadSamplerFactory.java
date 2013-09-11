@@ -19,10 +19,19 @@ public class JmxThreadSamplerFactory implements ThreadSamplerFactory {
 	private ThreadMXBean threadMBean;
 	private ThreadSampler sampler;
 	private JMXConnector connector;
+	private boolean ignoreSamplingThread = true;
 
 	public JmxThreadSamplerFactory() {
 		// current JVM
 		threadMBean = ManagementFactory.getThreadMXBean();
+	}
+
+	public boolean isIgnoreSamplingThread() {
+		return ignoreSamplingThread;
+	}
+
+	public void setIgnoreSamplingThread(boolean ignoreSamplingThread) {
+		this.ignoreSamplingThread = ignoreSamplingThread;
 	}
 
 	public JmxThreadSamplerFactory(JMXServiceURL jmxURL, String[] userInfo)

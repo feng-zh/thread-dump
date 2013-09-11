@@ -28,12 +28,22 @@ public class WLSJmxThreadSamplerFactory implements ThreadSamplerFactory {
 	private WLSJmxThreadSampler sampler;
 
 	private JMXConnector jmxConnector;
+	
+	private boolean ignoreSamplingThread = true;
 
 	public WLSJmxThreadSamplerFactory(String hostport, String username,
 			String password) {
 		this.hostport = hostport;
 		this.username = username;
 		this.password = password;
+	}
+	
+	public boolean isIgnoreSamplingThread() {
+		return ignoreSamplingThread;
+	}
+
+	public void setIgnoreSamplingThread(boolean ignoreSamplingThread) {
+		this.ignoreSamplingThread = ignoreSamplingThread;
 	}
 
 	@Override
@@ -57,7 +67,7 @@ public class WLSJmxThreadSamplerFactory implements ThreadSamplerFactory {
 						"expect JVMRuntime mbean, but get: " + objectNames);
 			}
 			Iterator<ObjectName> iterator = objectNames.iterator();
-			sampler = new WLSJmxThreadSampler(mbsc, iterator.next());
+			sampler = new WLSJmxThreadSampler(mbsc, iterator.next(), ignoreSamplingThread);
 		}
 		return sampler;
 	}

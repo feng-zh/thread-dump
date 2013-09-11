@@ -13,6 +13,8 @@ import com.hp.ts.rnd.tool.perf.threads.ThreadStackTrace;
 
 public class CallTreeAnalyzer {
 
+	private static final String INDENT = " ";
+
 	private static class CallCount {
 
 		long count;
@@ -74,12 +76,13 @@ public class CallTreeAnalyzer {
 		if (n > 0) {
 			level++;
 			for (TreeNode<Object, CallCount> child : children) {
-				String np = i < n - 1 ? prefix + "  |" : prefix + "   ";
+				String np = prefix + INDENT.substring(0, INDENT.length() - 1)
+						+ (i < n - 1 ? "|" : " ");
 				print(level, np, child, out);
 				i++;
 			}
 		} else {
-			printTreeNode(prefix + "   ", null, out);
+			printTreeNode(prefix + INDENT, null, out);
 		}
 	}
 
@@ -123,7 +126,7 @@ public class CallTreeAnalyzer {
 		if (prefix.length() > 0) {
 			out.print(prefix.substring(0, prefix.length() - 1));
 			if (item != null) {
-				out.print("|-- ");
+				out.print("\\- ");
 			}
 		}
 		if (item != null) {
