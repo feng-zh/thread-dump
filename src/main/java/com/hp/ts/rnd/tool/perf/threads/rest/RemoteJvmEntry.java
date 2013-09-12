@@ -67,7 +67,7 @@ class RemoteJvmEntry {
 	public String getAgentId() {
 		if (agentId == null) {
 			agentId = ThreadSamplerAgentController.generateSHA1Id(remoteType,
-					remoteType);
+					url);
 		}
 		return agentId;
 	}
