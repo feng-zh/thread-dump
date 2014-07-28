@@ -34,7 +34,6 @@ public class Utils {
 		return toolsJarFile;
 	}
 
-	@SuppressWarnings("resource")
 	private static Class<?> loadVirtualMachineClass() {
 		try {
 			try {
