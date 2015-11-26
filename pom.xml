@@ -54,13 +54,6 @@
 			<systemPath>${toolsjar}</systemPath>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>weblogic</groupId>
-			<artifactId>wlfullclient</artifactId>
-			<version>10.3</version>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
 	</dependencies>
 	<profiles>
 		<!-- http://stackoverflow.com/questions/3080437/jdk-tools-jar-as-maven-dependency -->
