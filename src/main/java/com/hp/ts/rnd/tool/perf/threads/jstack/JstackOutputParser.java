@@ -25,7 +25,7 @@ class JstackOutputParser {
 		StartThread,
 
 		ThreadLine(
-				"^\"(.*)\" (daemon )?prio=([0-9]+) tid=(0x[0-9a-f]+) nid=(0x[0-9a-f]+) (.*)$"),
+				"^\"(.*)\" (?:#[0-9]+ )?(daemon )?prio=([0-9]+) (?:os_prio=-?[0-9]+ )?tid=(0x[0-9a-f]+) nid=(0x[0-9a-f]+) (.*)$"),
 
 		ThreadState(" +java\\.lang\\.Thread\\.State: ([^ ]+)(?: \\((.+)\\))?"),
 

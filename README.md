@@ -57,7 +57,7 @@ Also, the repackaged release jar file can be downloaded from [Release Page](http
 #### Run without WebLogic supported ####
 
 ```shell
-java -classpath threads.jar com.hp.ts.rnd.tool.perf.web.Webrver 8080
+java -classpath threads.jar com.hp.ts.rnd.tool.perf.web.WebServer 8080
 ```
 
 The application will be started and listening on port 8080 in host. It can be accessed via `http://127.0.0.1:8080/threads/` (**NOTE:** Please rember to add tailer / in path in this version.)
@@ -71,13 +71,13 @@ Locate the weblogic installed folder, and copy two jar files `wlclient.jar` and 
 For Linux System:
 
 ```shell
-java -classpath threads.jar:wlclient.jar:wljmxclient.jar com.hp.ts.rnd.tool.perf.web.Webrver 8080
+java -classpath threads.jar:wlclient.jar:wljmxclient.jar com.hp.ts.rnd.tool.perf.web.WebServer 8080
 ```
 
 For Windows System:
 
 ```shell
-java -classpath threads.jar;wlclient.jar;wljmxclient.jar com.hp.ts.rnd.tool.perf.web.Webrver 8080
+java -classpath threads.jar;wlclient.jar;wljmxclient.jar com.hp.ts.rnd.tool.perf.web.WebServer 8080
 ``` 
 
 The use same step mentioned above.
