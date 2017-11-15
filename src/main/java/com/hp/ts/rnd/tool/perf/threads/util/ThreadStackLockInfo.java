@@ -44,16 +44,22 @@ public class ThreadStackLockInfo implements Serializable {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(getLockState());
-		builder.append(" <0x");
-		String idString = String.valueOf(Long
-				.toHexString(getLockIdentityHashCode()));
-		for (int i = idString.length(); i < 16; i++) {
-			builder.append('0');
+		if (lockIdentityHashCode != 0) {
+			builder.append(" <0x");
+			String idString = String.valueOf(Long
+					.toHexString(getLockIdentityHashCode()));
+			for (int i = idString.length(); i < 16; i++) {
+				builder.append('0');
+			}
+			builder.append(idString);
+			builder.append("> (a ");
+			builder.append(getLockClassName());
+			builder.append(")");
+		} else {
+			builder.append(" <");
+			builder.append(lockClassName);
+			builder.append(">");
 		}
-		builder.append(idString);
-		builder.append("> (a ");
-		builder.append(getLockClassName());
-		builder.append(")");
 		return builder.toString();
 	}
 

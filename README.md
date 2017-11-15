@@ -4,6 +4,8 @@
 
 This repository contains advanced components to view java thread dump especially perform sampling with existing JVM process or JMX process (including WebLogic supported).
 
+NOTE: The JDK 9 jstack sampling is supported.
+
 ## Introduction ##
 
 In Enterprise web application, we usually need to know which part impacting web application running on web servers. However, due to limited log or INFO log level on production, it cannot easily detect performance bottom neck, especially during heavy load in production.

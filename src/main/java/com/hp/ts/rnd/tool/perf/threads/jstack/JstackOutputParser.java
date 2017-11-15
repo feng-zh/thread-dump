@@ -33,6 +33,10 @@ class JstackOutputParser {
 
 		StackLock("\t- (.*) <(0x[0-9a-f]+)> \\(a (.+)\\)"),
 
+		StackLockUnavailable("\t- (.*) <([^0-9]+)>"),
+
+		Compiling(" +(No compile task|Compiling: .*)"),
+
 		EndThread;
 
 		private Pattern pattern;
@@ -147,6 +151,17 @@ class JstackOutputParser {
 						possibleStates.clear();
 						possibleStates.set(ThreadParseState.StackFrame
 								.ordinal());
+						possibleStates.set(ThreadParseState.Compiling
+								.ordinal());
+						possibleStates
+								.set(ThreadParseState.EndThread.ordinal());
+						continue NEXTLINE;
+					}
+					break;
+				case Compiling:
+					matcher = state.getPattern().matcher(line);
+					if (matcher.matches()) {
+						possibleStates.clear();
 						possibleStates
 								.set(ThreadParseState.EndThread.ordinal());
 						continue NEXTLINE;
@@ -180,6 +195,8 @@ class JstackOutputParser {
 						possibleStates
 								.set(ThreadParseState.StackLock.ordinal());
 						possibleStates
+								.set(ThreadParseState.StackLockUnavailable.ordinal());
+						possibleStates
 								.set(ThreadParseState.EndThread.ordinal());
 						continue NEXTLINE;
 					}
@@ -205,6 +222,34 @@ class JstackOutputParser {
 								.ordinal());
 						possibleStates
 								.set(ThreadParseState.StackLock.ordinal());
+						possibleStates
+								.set(ThreadParseState.StackLockUnavailable.ordinal());
+						possibleStates
+								.set(ThreadParseState.EndThread.ordinal());
+						continue NEXTLINE;
+					}
+					break;
+				case StackLockUnavailable:
+					matcher = state.getPattern().matcher(line);
+					if (matcher.matches()) {
+						List<StackTraceElementWrapperWithLocks> list = thread
+								.getStackFrameList();
+						StackTraceElementWrapperWithLocks stackFrame = list
+								.get(list.size() - 1);
+						String lockState = matcher.group(1);
+						String lockClassName = matcher.group(2);
+						boolean ownLock = "locked".equals(lockState);
+						ThreadStackLockInfo lockInfo = new ThreadStackLockInfo(
+								lockClassName, 0, lockState,
+								ownLock);
+						stackFrame.addLockInfo(lockInfo);
+						possibleStates.clear();
+						possibleStates.set(ThreadParseState.StackFrame
+								.ordinal());
+						possibleStates
+								.set(ThreadParseState.StackLock.ordinal());
+						possibleStates
+								.set(ThreadParseState.StackLockUnavailable.ordinal());
 						possibleStates
 								.set(ThreadParseState.EndThread.ordinal());
 						continue NEXTLINE;
