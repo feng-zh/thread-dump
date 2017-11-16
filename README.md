@@ -4,7 +4,7 @@
 
 This repository contains advanced components to view java thread dump especially perform sampling with existing JVM process or JMX process (including WebLogic supported).
 
-NOTE: The JDK 9 jstack sampling is supported.
+NOTE: The JDK 6/7/8/9 jstack sampling are all supported.
 
 ## Introduction ##
 
@@ -39,27 +39,28 @@ Once finished or in progress, the aggregated tree is presented in screen, and nu
 
 ### Get Started ###
 
+#### Download ####
+
+Download latest version from <https://jitpack.io/com/github/feng-zh/threads/1.2.0/threads-1.2.0-jar-with-dependencies.jar>, 
+and rename it as `threads-jar-with-dependencies.jar`.
+
 #### Build ####
 
-Use `maven` to build application from git source code
+If want to build by self, use `maven` to build application from git source code
 
 ```shell
-git clone --recursive https://github.com/feng-zh/thread-dump.git
+git clone https://github.com/feng-zh/thread-dump.git
 
 cd thread-dump
 
 mvn package
 ```
-The build package is ready in `thread-dump/target/threads.jar`.
+The build package is ready in `thread-dump/target/threads-jar-with-dependencies.jar`.
 
-#### Download Release ####
-
-Also, the repackaged release jar file can be downloaded from [Release Page](https://github.com/feng-zh/thread-dump/releases).
-
-#### Run without WebLogic supported ####
+#### Run ####
 
 ```shell
-java -classpath threads.jar com.hp.ts.rnd.tool.perf.web.WebServer 8080
+java -jar threads-jar-with-dependencies.jar 8080
 ```
 
 The application will be started and listening on port 8080 in host. It can be accessed via `http://127.0.0.1:8080/threads/` (**NOTE:** Please rember to add tailer / in path in this version.)
@@ -73,13 +74,13 @@ Locate the weblogic installed folder, and copy two jar files `wlclient.jar` and 
 For Linux System:
 
 ```shell
-java -classpath threads.jar:wlclient.jar:wljmxclient.jar com.hp.ts.rnd.tool.perf.web.WebServer 8080
+java -classpath wlclient.jar:wljmxclient.jar -jar threads-jar-with-dependencies.jar 8080
 ```
 
 For Windows System:
 
 ```shell
-java -classpath threads.jar;wlclient.jar;wljmxclient.jar com.hp.ts.rnd.tool.perf.web.WebServer 8080
+java -classpath wlclient.jar;wljmxclient.jar -jar threads-jar-with-dependencies.jar 8080
 ``` 
 
 The use same step mentioned above.
