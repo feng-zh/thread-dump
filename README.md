@@ -41,8 +41,8 @@ Once finished or in progress, the aggregated tree is presented in screen, and nu
 
 #### Download ####
 
-Download latest version from <https://jitpack.io/com/github/feng-zh/threads/1.2.0/threads-1.2.0-jar-with-dependencies.jar>, 
-and rename it as `threads-jar-with-dependencies.jar`.
+Download latest version from <https://jitpack.io/com/github/feng-zh/thread-dump/v1.2.0/thread-dump-v1.2.0-jar-with-dependencies.jar>, 
+and rename it as `thread-dump-jar-with-dependencies.jar`.
 
 #### Build ####
 
@@ -55,12 +55,12 @@ cd thread-dump
 
 mvn package
 ```
-The build package is ready in `thread-dump/target/threads-jar-with-dependencies.jar`.
+The build package is ready in `thread-dump/target/thread-dump-jar-with-dependencies.jar`.
 
 #### Run ####
 
 ```shell
-java -jar threads-jar-with-dependencies.jar 8080
+java -jar thread-dump-jar-with-dependencies.jar 8080
 ```
 
 The application will be started and listening on port 8080 in host. It can be accessed via `http://127.0.0.1:8080/threads/` (**NOTE:** Please rember to add tailer / in path in this version.)
@@ -74,13 +74,13 @@ Locate the weblogic installed folder, and copy two jar files `wlclient.jar` and 
 For Linux System:
 
 ```shell
-java -classpath wlclient.jar:wljmxclient.jar -jar threads-jar-with-dependencies.jar 8080
+java -classpath wlclient.jar:wljmxclient.jar -jar thread-dump-jar-with-dependencies.jar 8080
 ```
 
 For Windows System:
 
 ```shell
-java -classpath wlclient.jar;wljmxclient.jar -jar threads-jar-with-dependencies.jar 8080
+java -classpath wlclient.jar;wljmxclient.jar -jar thread-dump-jar-with-dependencies.jar 8080
 ``` 
 
 The use same step mentioned above.
